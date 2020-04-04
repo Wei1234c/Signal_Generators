@@ -4,34 +4,44 @@ import time
 
 
 try:
-    from ...ad983x.ad9833.ad9833 import AD9833, FREQ_DEFAULT
+    from .interfaces import Device, FREQ_DEFAULT
 except:
-    from ad9833 import AD9833, FREQ_DEFAULT
+    from interfaces import Device, FREQ_DEFAULT
+
+DEFAULT_CARRIER_FREQ = int(1e5)
 
 
 
-class Modulator(AD9833):
+class Modulator:
     ON = 1
     OFF = 0
     SYMBOLS = (ON, OFF)
 
 
-    def __init__(self, spi, ss, freq = FREQ_DEFAULT, time_ratio = 1):
-        super().__init__(spi, ss, freq = freq)
+    def __init__(self, device: Device, freq = DEFAULT_CARRIER_FREQ, time_ratio = 1):
+        self._device = device
         self.freq = freq
         self.time_ratio = time_ratio
         self.initialize()
 
 
     def initialize(self):
-        super().reset()
+        self._device.reset()
         self.enable_output(False)
-        self.set_frequency(freq = self.freq)
+        self._device.set_frequency(freq = self.freq)
         self._symbol = self.OFF
 
 
     def reset(self):
         self.initialize()
+
+
+    def enable_output(self, value = True):
+        self._device.enable_output(value)
+
+
+    def update(self):
+        self._device.update()
 
 
     @property
@@ -59,7 +69,7 @@ class Modulator(AD9833):
 
 
     def send_sequence(self, sequence):
-        self.update()
+        self.reset()
         self.enable_output(True)
 
         try:
@@ -74,13 +84,12 @@ class Modulator(AD9833):
 
 
 class PM(Modulator):
-    FREQ_CARRIER = int(1e5)
     ON = 1
     OFF = -1
 
 
-    def __init__(self, spi, ss, freq = FREQ_CARRIER):
-        super().__init__(spi, ss, freq = freq)
+    def __init__(self, device, freq = DEFAULT_CARRIER_FREQ):
+        super().__init__(device, freq = freq)
 
 
     @Modulator.symbol.setter
@@ -91,23 +100,22 @@ class PM(Modulator):
 
 
     def _process_symbol(self, symbol):
-        self.set_phase(phase = 90 * symbol)
+        self._device.set_phase(phase = 90 * symbol)
 
 
 
 class FM(PM):
-    FREQ_CARRIER = int(1e5)
     BANDWIDTH = int(1e4)
 
 
-    def __init__(self, spi, ss, freq = FREQ_CARRIER, bandwidth = BANDWIDTH):
+    def __init__(self, device, freq = DEFAULT_CARRIER_FREQ, bandwidth = BANDWIDTH):
         self.bandwidth = bandwidth
-        super().__init__(spi, ss, freq = freq)
+        super().__init__(device, freq = freq)
         self.initialize()
 
 
     def _process_symbol(self, symbol):
-        self.set_frequency(freq = self.freq + self.bandwidth * symbol)
+        self._device.set_frequency(freq = self.freq + self.bandwidth * symbol)
 
 
 
@@ -115,69 +123,70 @@ class OOK(Modulator):
     FREQ_CARRIER = int(4e4)
 
 
-    def __init__(self, spi, ss, freq = FREQ_CARRIER, time_ratio = 500 / 517):
-        super().__init__(spi, ss, freq = freq, time_ratio = time_ratio)
+    def __init__(self, device, freq = FREQ_CARRIER, time_ratio = 500 / 517):
+        super().__init__(device, freq = freq, time_ratio = time_ratio)
 
 
     def initialize(self):
         super().initialize()
-        self.shape = 'sine'
+        self._device.shape = 'sine'
 
 
     def _process_symbol(self, symbol):
-        self.enable_output(symbol == self.ON)
+        self._device.enable_output(symbol == self.ON)
 
 
 
 class BFSK(Modulator):
-    FREQ_CARRIER = int(1e5)
     FREQ_OFFSET = int(1e3)
-    FREQ_ON = FREQ_CARRIER + FREQ_OFFSET
-    FREQ_OFF = FREQ_CARRIER - FREQ_OFFSET
+    FREQ_ON = DEFAULT_CARRIER_FREQ + FREQ_OFFSET
+    FREQ_OFF = DEFAULT_CARRIER_FREQ - FREQ_OFFSET
 
 
-    def __init__(self, spi, ss, freq_on = FREQ_ON, freq_off = FREQ_OFF):
+    def __init__(self, device, freq_on = FREQ_ON, freq_off = FREQ_OFF):
         self.freq_on = freq_on
         self.freq_off = freq_off
-        super().__init__(spi, ss)
+        super().__init__(device)
 
 
     def initialize(self):
         super().initialize()
-        self.set_frequency(idx = self.ON, freq = self.freq_on)
-        self.set_frequency(idx = self.OFF, freq = self.freq_off)
+        self._device.set_frequency(idx = self.ON, freq = self.freq_on)
+        self._device.set_frequency(idx = self.OFF, freq = self.freq_off)
 
 
     def _process_symbol(self, symbol):
-        self.select_freq_source(idx = symbol)
+        self._device.select_freq_source(idx = symbol)
 
 
 
 class BPSK(Modulator):
-    FREQ_CARRIER = int(1e5)
     PHASE_ON = 0
     PHASE_OFF = 180
 
 
-    def __init__(self, spi, ss, freq = FREQ_CARRIER, phase_on = PHASE_ON, phase_off = PHASE_OFF):
+    def __init__(self, device, freq = DEFAULT_CARRIER_FREQ, phase_on = PHASE_ON, phase_off = PHASE_OFF):
         self.phase_on = phase_on
         self.phase_off = phase_off
-        super().__init__(spi, ss, freq = freq)
+        super().__init__(device, freq = freq)
 
 
     def initialize(self):
         super().initialize()
-        self.set_phase(idx = self.ON, phase = self.phase_on)
-        self.set_phase(idx = self.OFF, phase = self.phase_off)
+        self._device.set_phase(idx = self.ON, phase = self.phase_on)
+        self._device.set_phase(idx = self.OFF, phase = self.phase_off)
+
+
+    def select_phase_source(self, idx):
+        self._device.select_phase_source(idx)
 
 
     def _process_symbol(self, symbol):
-        self.select_phase_source(idx = symbol)
+        self._device.select_phase_source(idx = symbol)
 
 
 
 class QPSK(Modulator):
-    FREQ_CARRIER = int(1e5)
     # PHASE_11 = 45
     # PHASE_01 = 135
     # PHASE_00 = 225
@@ -188,12 +197,12 @@ class QPSK(Modulator):
     OFF = 0
 
 
-    def __init__(self, spi, ss, freq = FREQ_CARRIER):
-        super().__init__(spi, ss, freq = freq)
+    def __init__(self, device, freq = DEFAULT_CARRIER_FREQ):
+        super().__init__(device, freq = freq)
 
 
     def _process_symbol(self, symbol):
-        self.set_phase(phase = self.PHASES[symbol])
+        self._device.set_phase(phase = self.PHASES[symbol])
 
 
 
@@ -203,27 +212,26 @@ class MultipleChannels:
     SYMBOLS = (ON, OFF)
 
 
-    def __init__(self, spi, ss1, ss2):
-        self.generators = (Modulator(spi, ss1),
-                           Modulator(spi, ss2))
+    def __init__(self, devices):
+        self._devices = devices
         self.initialize()
 
 
     def initialize(self):
-        for g in self.generators:
-            g.initialize()
-            g.enable_output(False)
-            g._symbol = None
+        for d in self._devices:
+            d.reset()
+            d.enable_output(False)
+            d._symbol = None
 
 
     def update(self):
-        for g in self.generators:
-            g.update()
+        for d in self._devices:
+            d.update()
 
 
     def enable_output(self, value = True):
-        for g in self.generators:
-            g.enable_output(value)
+        for d in self._devices:
+            d.enable_output(value)
 
 
     def reset(self):
@@ -255,7 +263,7 @@ class MultipleChannels:
 
 
     def send_sequence(self, sequence):
-        self.update()
+        self.reset()
         self.enable_output(True)
 
         try:
@@ -270,7 +278,6 @@ class MultipleChannels:
 
 
 class IQ(MultipleChannels):
-    FREQ_CARRIER = int(1e5)
     PHASE_ON = 0
     PHASE_OFF = 180
     QUADRATURE = 90
@@ -288,20 +295,26 @@ class IQ(MultipleChannels):
     IDX_Q = 1
 
 
-    def __init__(self, spi, ss_I, ss_Q, freq = FREQ_CARRIER, phase_on = PHASE_ON, phase_off = PHASE_OFF):
-        self.generators = (BPSK(spi, ss_I, freq = freq, phase_on = phase_on, phase_off = phase_off),
-                           BPSK(spi, ss_Q, freq = freq,
-                                phase_on = phase_on + self.QUADRATURE,
-                                phase_off = phase_off + self.QUADRATURE))
+    def __init__(self, devices, freq = DEFAULT_CARRIER_FREQ, phase_on = PHASE_ON, phase_off = PHASE_OFF):
+        self._devices = (BPSK(devices[0], freq = freq, phase_on = phase_on, phase_off = phase_off),
+                         BPSK(devices[1], freq = freq,
+                              phase_on = phase_on + self.QUADRATURE,
+                              phase_off = phase_off + self.QUADRATURE))
         self.freq = freq
         self.phase_on = phase_on
         self.phase_off = phase_off
         self.initialize()
 
 
+    def initialize(self):
+        super().initialize()
+        for d in self._devices:
+            d.initialize()
+
+
     def _process_symbol(self, symbol):
-        self.generators[self.IDX_I].select_phase_source(idx = symbol & self.MASK_I)
-        self.generators[self.IDX_Q].select_phase_source(idx = symbol & self.MASK_Q)
+        self._devices[self.IDX_I].select_phase_source(idx = symbol & self.MASK_I)
+        self._devices[self.IDX_Q].select_phase_source(idx = symbol & self.MASK_Q)
 
 
 
@@ -336,27 +349,22 @@ class DTMF(MultipleChannels):
     IDX_FREQ_COLUMN = 1
 
 
-    def __init__(self, spi, ss_row, ss_column):
-        self.generators = (Modulator(spi, ss_row), Modulator(spi, ss_column))
-        self.initialize()
-
-
     def _process_symbol(self, symbol):
-        self.generators[self.IDX_FREQ_ROW].set_frequency(freq = self.TONES[symbol][self.IDX_FREQ_ROW])
-        self.generators[self.IDX_FREQ_COLUMN].set_frequency(freq = self.TONES[symbol][self.IDX_FREQ_COLUMN])
+        self._devices[self.IDX_FREQ_ROW].set_frequency(freq = self.TONES[symbol][self.IDX_FREQ_ROW])
+        self._devices[self.IDX_FREQ_COLUMN].set_frequency(freq = self.TONES[symbol][self.IDX_FREQ_COLUMN])
 
 
 
-class PWM(AD9833):
+class PWM:
     FREQ_PWM = 100
     CARRIER_FREQ_RATIO = 1000
     DUTY_CYCLE = 0.2
 
 
-    def __init__(self, spi, ss,
+    def __init__(self, device,
                  duty_cycle = DUTY_CYCLE,
                  freq = FREQ_PWM, carrier_freq_ratio = CARRIER_FREQ_RATIO):
-        super().__init__(spi, ss)
+        self._device = device
         self._duty_cycle = duty_cycle
         self._freq = freq
         self._carrier_freq_ratio = carrier_freq_ratio
@@ -364,11 +372,11 @@ class PWM(AD9833):
 
 
     def initialize(self):
-        super().reset()
+        self._device.reset()
         self.running = False
-        self.enable_output(False)
+        self._device.enable_output(False)
         self.freq = self.freq
-        self.shape = 'half_square'
+        self._device.shape = 'half_square'
 
 
     def reset(self):
@@ -384,8 +392,7 @@ class PWM(AD9833):
     def freq(self, freq):
         self._freq = freq
         self._freq_carrier = self._freq * self._carrier_freq_ratio
-        self.set_frequency(idx = 0, freq = self._freq_carrier)
-        self.select_freq_source(0)
+        self._device.set_frequency(self._freq_carrier)
         self.duty_cycle = self.duty_cycle  # refresh parameters
 
 
@@ -403,16 +410,16 @@ class PWM(AD9833):
 
 
     def run(self):
+        self.reset()
         self.running = True
-        self.update()
 
         try:
             while self.running:
-                self.enable_output(True)
+                self._device.enable_output(True)
                 time.sleep(self._period_on)
-                self.enable_output(False)
+                self._device.enable_output(False)
                 time.sleep(self._period_off)
         except KeyboardInterrupt:
             print('User interrupts.')
 
-        self.enable_output(False)
+        self._device.enable_output(False)

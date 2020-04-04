@@ -12,6 +12,7 @@ IS_RPi = machine_name.startswith('armv')
 IS_MICROPYTHON = (sys.implementation.name == 'micropython')
 
 try:
+
     from bridges.ftdi.controllers.gpio import GpioController
     from bridges.ftdi.adapters.micropython.machine import Pin as ftdi_Pin
     from .shift_register import ShiftRegister

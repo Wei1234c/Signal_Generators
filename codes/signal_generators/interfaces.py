@@ -1,6 +1,24 @@
-class Device:
+import math
 
-    def __init__(self, freq = 440, freq_correction = 0, phase = 0, shape = 'sine', commands = None):
+
+SPEED_OF_LIGHT_M_S = 299792458
+PI2 = 2 * math.pi
+DEGREES_IN_PI2 = 360
+FREQ_DEFAULT = 440
+PHASE_DEFAULT = 0
+DEGREE_TO_RAD = PI2 / DEGREES_IN_PI2
+RAD_TO_DEGREE = DEGREES_IN_PI2 / PI2
+SHAPE_DEFAULT = 'sine'
+
+
+
+class Device:
+    REGISTERS_COUNT = 0
+    DEBUG_MODE = False
+
+
+    def __init__(self, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
+                 commands = None):
         self._frequency = freq
         self.freq_correction = freq_correction
         self.phase = phase
@@ -30,8 +48,20 @@ class Device:
             fun(*args, **kwargs)
 
 
+    @classmethod
+    def do_on_devices(cls, devices, fun, *args, **kwargs):
+        for d in devices:
+            fun = getattr(d, fun)
+            fun(*args, **kwargs)
+
+
     @property
     def freq_resolution(self):
+        raise NotImplementedError()
+
+
+    @property
+    def phase_resolution(self):
         raise NotImplementedError()
 
 
@@ -45,7 +75,7 @@ class Device:
         self._frequency = frequency
 
 
-    def set_frequency(self, freq, freq_correction = None):
+    def set_frequency(self, freq, idx = None, freq_correction = None):
         raise NotImplementedError()
 
 
@@ -58,7 +88,7 @@ class Device:
         raise NotImplementedError()
 
 
-    def set_phase(self, phase):
+    def set_phase(self, phase, idx = None):
         raise NotImplementedError()
 
 
@@ -99,6 +129,10 @@ class Device:
         raise NotImplementedError()
 
 
+    def enable_output(self, value = True):
+        raise NotImplementedError()
+
+
     def init(self):
         raise NotImplementedError()
 
@@ -133,3 +167,8 @@ class Device:
 
     def dump(self):
         raise NotImplementedError()
+
+
+    def _dump_register(self, register):
+        if self.DEBUG_MODE:
+            register.dump()

@@ -1,28 +1,28 @@
 from signal_generators import adapters
-from signal_generators.ad983x.ad9833 import ad9833
-from signal_generators.ad983x.ad9833 import modulators
-from signal_generators.ad983x.ad9833 import tools
+from signal_generators import modulators
+from signal_generators import tools
+from signal_generators.ad983x import ad983x
 
 
 _spi = adapters.SPI.get_RPi_spi(mode = 2)
 _ss1 = adapters.Pin.get_RPi_pin(7, output = True)
 _ss2 = adapters.Pin.get_RPi_pin(25, output = True)
 
-ad1 = ad9833.AD9833(_spi, _ss1)
-ad2 = ad9833.AD9833(_spi, _ss2)
+ad1 = ad983x.AD983x(_spi, _ss1)
+ad2 = ad983x.AD983x(_spi, _ss2)
 
-bfsk = modulators.BFSK(_spi, _ss1)
-bpsk = modulators.BPSK(_spi, _ss1)
-dtmf = modulators.DTMF(_spi, _ss1, _ss2)
-fm = modulators.FM(_spi, _ss1)
-iq = modulators.IQ(_spi, _ss1, _ss2)
-ook = modulators.OOK(_spi, _ss1)
-pm = modulators.PM(_spi, _ss1)
-pwm = modulators.PWM(_spi, _ss1)
-qpsk = modulators.QPSK(_spi, _ss1)
+bfsk = modulators.BFSK(ad1)
+bpsk = modulators.BPSK(ad1)
+dtmf = modulators.DTMF((ad1, ad2))
+fm = modulators.FM(ad1)
+iq = modulators.IQ((ad1, ad2))
+ook = modulators.OOK(ad1)
+pm = modulators.PM(ad1)
+pwm = modulators.PWM(ad1)
+qpsk = modulators.QPSK(ad1)
 
-tb1 = tools.ToolBox(ad1)
-tb2 = tools.ToolBox(ad2)
+tb1 = tools.ToolBox()
+tb2 = tools.ToolBox()
 
 ad1.reset()
 ad2.reset()
