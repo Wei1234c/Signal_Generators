@@ -2,7 +2,7 @@
 
 
 try:
-    from ..ad983x import *
+    from ..ad983x.ad983x import *
 except:
     from ad983x import *
 

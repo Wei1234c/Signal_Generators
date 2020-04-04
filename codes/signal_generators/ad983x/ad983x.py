@@ -47,9 +47,11 @@ class ControlRegister(Register):
                              Element(name = 'Reset', idx_lowest_bit = 8,
                                      description = '''Reset = 1 resets internal registers to 0, which corresponds to an analog output of midscale. Reset = 0 disables reset. This function is explained further in Table 13.'''),
                              Element(name = 'SLEEP1', idx_lowest_bit = 7,
-                                     description = '''When SLEEP1 = 1, the internal MCLK clock is disabled, and the DAC output remains at its present value because the NCO is no longer accumulating. When SLEEP1 = 0, MCLK is enabled. This function is explained further in Table 14.'''),
+                                     description = '''When SLEEP1 = 1, the internal MCLK clock is disabled, and the DAC output remains at its present value because the NCO is no longer accumulating. 
+                                     When SLEEP1 = 0, MCLK is enabled. This function is explained further in Table 14.'''),
                              Element(name = 'SLEEP12', idx_lowest_bit = 6,
-                                     description = '''SLEEP12 = 1 powers down the on-chip DAC. This is useful when the AD983x is used to output the MSB of the DAC data. SLEEP12 = 0 implies that the DAC is active. This function is explained further in Table 14.'''),
+                                     description = '''SLEEP12 = 1 powers down the on-chip DAC. This is useful when the AD983x is used to output the MSB of the DAC data. 
+                                     SLEEP12 = 0 implies that the DAC is active. This function is explained further in Table 14.'''),
                              Element(name = 'OPBITEN', idx_lowest_bit = 5,
                                      description = '''The function of this bit, in association with D1 (mode), is to control what is output at the VOUT pin. This is explained further in Table 15. When OPBITEN = 1, the output of the DAC is no longer available at the VOUT pin. Instead, the MSB (or MSB/2) of the DAC data is connected to the VOUT pin. This is useful as a coarse clock source. The DIV2 bit controls whether it is the MSB or MSB/2 that is output. When OPBITEN = 0, the DAC is connected to VOUT. The mode bit determines whether it is a sinusoidal or a ramp output that is available.'''),
                              Element(name = 'Reserved_4', idx_lowest_bit = 4, read_only = True,
@@ -177,8 +179,8 @@ class AD983x(Device):
 
 
     def __init__(self, spi, ss, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
-                 freq_mclk = FREQ_MCLK,
-                 commands = None):
+                 freq_mclk = FREQ_MCLK, commands = None):
+
         Device.__init__(self, freq = freq, freq_correction = freq_correction, phase = phase, shape = shape,
                         commands = commands)
         self._spi = SPI(spi, ss)
