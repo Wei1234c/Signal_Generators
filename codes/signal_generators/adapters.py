@@ -84,9 +84,10 @@ class SPI:
     DEBUG_MODE = False
 
 
-    def __init__(self, spi, ss):
+    def __init__(self, spi, ss, ss_polarity = 1):
         self._spi = spi
         self._ss = ss
+        self._ss_polarity = ss_polarity
 
 
     def write(self, bytes_array):
@@ -95,6 +96,7 @@ class SPI:
             print('Sending: {}'.format(hex(int.from_bytes(bytes_array, 'big'))))
 
         if self._spi is not None:
+            self._ss.high()
             self._ss.low()
 
             if IS_RPi:
@@ -105,6 +107,8 @@ class SPI:
                 self._spi.write(bytes_array)
 
             self._ss.high()
+            if not self._ss_polarity == 1:
+                self._ss.low()
 
 
     @classmethod

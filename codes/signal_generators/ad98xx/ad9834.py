@@ -1,14 +1,10 @@
-# datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/ad983x.pdf
+# datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/ad9834.pdf
 
 
 try:
     from ..ad98xx.ad98xx import *
-    from ..adapters import SPI
-    from ..register import Element
 except:
-    from ad983x import *
-    from adapters import SPI
-    from register import Element
+    from ad98xx import *
 
 
 
@@ -32,8 +28,8 @@ SIGN/PIB = 0, the MSB (or MSB/2) of the DAC data is connected to the SIGN BIT OU
 
 
 class AD9834(AD98xx):
-    REGISTERS_COUNT = 2
     DEBUG_MODE = False
+    REGISTERS_COUNT = 2
     FREQ_MCLK = int(75e6)
 
 

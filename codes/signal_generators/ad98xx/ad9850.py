@@ -2,21 +2,12 @@
 
 
 try:
-    from ..register import Register, Element
-    from ..adapters import SPI
     from ..ad98xx.ad98xx import *
 except:
-    from register import Register, Element
-    from adapters import SPI
     from ad98xx import *
 
 FREQ_MCLK = int(125e6)
 BITS_PER_DEG = POW2_5 / DEGREES_IN_PI2
-
-SHAPES_CONFIG = {'sine'       : {'OPBITEN': 0, 'SLEEP12': 0, 'Mode': 0, 'DIV2': 0},
-                 'triangle'   : {'OPBITEN': 0, 'SLEEP12': 0, 'Mode': 1, 'DIV2': 0},
-                 'square'     : {'OPBITEN': 1, 'SLEEP12': 1, 'Mode': 0, 'DIV2': 1},
-                 'half_square': {'OPBITEN': 1, 'SLEEP12': 1, 'Mode': 0, 'DIV2': 0}, }
 
 
 
@@ -46,7 +37,7 @@ class ControlRegister(Register):
 
     def reset(self):
         self.frequency = FREQ_DEFAULT
-        self._phase = PHASE_DEFAULT
+        self.phase = PHASE_DEFAULT
         super().reset()
 
 
@@ -91,8 +82,10 @@ class ControlRegister(Register):
 
 class AD9850(AD98xx):
     DEBUG_MODE = False
-    REGISTERS_COUNT = 2
+    REGISTERS_COUNT = 1
     FREQ_MCLK = int(125e6)
+
+    SHAPES_CONFIG = {'sine': None}
 
 
     def __init__(self, spi, ss, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
@@ -102,6 +95,7 @@ class AD9850(AD98xx):
         super().__init__(spi, ss, freq = freq, freq_correction = freq_correction, phase = phase, shape = shape,
                          freq_mclk = freq_mclk, commands = commands)
 
+        self._spi = SPI(spi, ss, ss_polarity = 0)
         self.pin_reset = pin_reset
         self.control_register = ControlRegister()
         self.init()
@@ -109,11 +103,8 @@ class AD9850(AD98xx):
 
     def init(self):
         self.enable_output(False)
-        for i in range(self.REGISTERS_COUNT):
-            self.set_frequency(idx = i, freq = self.frequency, freq_mclk = self.freq_mclk)
-            self.set_phase(idx = i, phase = self.phase)
-        self.select_freq_source(0)
-        self.select_phase_source(0)
+        self.set_frequency(freq = self.frequency, freq_mclk = self.freq_mclk)
+        self.set_phase(phase = self.phase)
         self.shape = self.shape
         self.start()
 
@@ -202,13 +193,17 @@ class AD9850(AD98xx):
             self.pin_reset.high()
 
 
-    def _enable_internal_clock(self, value = True):
-        self.control_register.elements['Power_Down'].value = int(not bool(value))
+    def _power_down(self, value = True):
+        self.control_register.elements['Power_Down'].value = int(bool(value))
         self._update_control_register()
 
 
+    def _enable_internal_clock(self, value = True):
+        self._power_down(not value)
+
+
     def _enable_DAC(self, value = True):
-        self._enable_internal_clock(value)
+        self._power_down(not value)
 
 
     def _enable_B28(self, value = True):

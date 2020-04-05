@@ -1,4 +1,4 @@
-# datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/ad983x.pdf
+# datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/ad9833.pdf
 
 
 try:
@@ -17,16 +17,11 @@ POW2_12 = 2 ** 12
 POW2_5 = 2 ** 5
 BITS_PER_DEG = POW2_12 / DEGREES_IN_PI2
 
-SHAPES_CONFIG = {'sine'       : {'OPBITEN': 0, 'SLEEP12': 0, 'Mode': 0, 'DIV2': 0},
-                 'triangle'   : {'OPBITEN': 0, 'SLEEP12': 0, 'Mode': 1, 'DIV2': 0},
-                 'square'     : {'OPBITEN': 1, 'SLEEP12': 1, 'Mode': 0, 'DIV2': 1},
-                 'half_square': {'OPBITEN': 1, 'SLEEP12': 1, 'Mode': 0, 'DIV2': 0}, }
-
 
 
 class ControlRegister(Register):
 
-    def __init__(self, name = 'Control', code_name = None, address = None, description = 'AD983x Control Register'):
+    def __init__(self, name = 'Control', code_name = None, address = None, description = 'AD98xx Control Register'):
         super().__init__(name = name,
                          code_name = code_name,
                          address = address,
@@ -37,7 +32,7 @@ class ControlRegister(Register):
                              Element(name = 'D14', idx_lowest_bit = 14, n_bits = 1, value = 0, read_only = True,
                                      description = '''D14'''),
                              Element(name = 'B28', idx_lowest_bit = 13, n_bits = 1, value = 1,
-                                     description = '''Two write operations are required to load a complete word into either of the frequency registers. B28 = 1 allows a complete word to be loaded into a frequency register in two consecutive writes. The first write contains the 14 LSBs of the frequency word, and the next write contains the 14 MSBs. The first two bits of each 16-bit word define the frequency register to which the word is loaded, and should therefore be the same for both of the consecutive writes. See Table 8 for the appropriate addresses. The write to the frequency register occurs after both words have been loaded; therefore, the register never holds an intermediate value. An example of a complete 28-bit write is shown in Table 9. When B28 = 0, the 28-bit frequency register operates as two 14-bit registers, one containing the 14 MSBs and the other containing the 14 LSBs. This means that the 14 MSBs of the frequency word can be altered independent of the 14 LSBs, and vice versa. To alter the 14 MSBs or the 14 LSBs, a single write is made to the appropriate frequency address. The control bit D12 (HLB) informs the AD983x whether the bits to be altered are the 14 MSBs or 14 LSBs.'''),
+                                     description = '''Two write operations are required to load a complete word into either of the frequency registers. B28 = 1 allows a complete word to be loaded into a frequency register in two consecutive writes. The first write contains the 14 LSBs of the frequency word, and the next write contains the 14 MSBs. The first two bits of each 16-bit word define the frequency register to which the word is loaded, and should therefore be the same for both of the consecutive writes. See Table 8 for the appropriate addresses. The write to the frequency register occurs after both words have been loaded; therefore, the register never holds an intermediate value. An example of a complete 28-bit write is shown in Table 9. When B28 = 0, the 28-bit frequency register operates as two 14-bit registers, one containing the 14 MSBs and the other containing the 14 LSBs. This means that the 14 MSBs of the frequency word can be altered independent of the 14 LSBs, and vice versa. To alter the 14 MSBs or the 14 LSBs, a single write is made to the appropriate frequency address. The control bit D12 (HLB) informs the AD98xx whether the bits to be altered are the 14 MSBs or 14 LSBs.'''),
                              Element(name = 'HLB', idx_lowest_bit = 12,
                                      description = '''This control bit allows the user to continuously load the MSBs or LSBs of a frequency register while ignoring the remaining 14 bits. This is useful if the complete 28-bit resolution is not required. HLB is used in conjunction with D13 (B28). This control bit indicates whether the 14 bits being loaded are being transferred to the 14 MSBs or 14 LSBs of the addressed frequency register. D13 (B28) must be set to 0 to be able to change the MSBs and LSBs of a frequency word separately. When D13 (B28) = 1, this control bit is ignored. HLB = 1 allows a write to the 14 MSBs of the addressed frequency register. HLB = 0 allows a write to the 14 LSBs of the addressed frequency register.'''),
                              Element(name = 'FSELECT', idx_lowest_bit = 11,
@@ -52,7 +47,7 @@ class ControlRegister(Register):
                                      description = '''When SLEEP1 = 1, the internal MCLK clock is disabled, and the DAC output remains at its present value because the NCO is no longer accumulating. 
                                      When SLEEP1 = 0, MCLK is enabled. This function is explained further in Table 14.'''),
                              Element(name = 'SLEEP12', idx_lowest_bit = 6,
-                                     description = '''SLEEP12 = 1 powers down the on-chip DAC. This is useful when the AD983x is used to output the MSB of the DAC data. 
+                                     description = '''SLEEP12 = 1 powers down the on-chip DAC. This is useful when the AD98xx is used to output the MSB of the DAC data. 
                                      SLEEP12 = 0 implies that the DAC is active. This function is explained further in Table 14.'''),
                              Element(name = 'OPBITEN', idx_lowest_bit = 5,
                                      description = '''The function of this bit, in association with D1 (mode), is to control what is output at the VOUT pin. This is explained further in Table 15. When OPBITEN = 1, the output of the DAC is no longer available at the VOUT pin. Instead, the MSB (or MSB/2) of the DAC data is connected to the VOUT pin. This is useful as a coarse clock source. The DIV2 bit controls whether it is the MSB or MSB/2 that is output. When OPBITEN = 0, the DAC is connected to VOUT. The mode bit determines whether it is a sinusoidal or a ramp output that is available.'''),
@@ -73,7 +68,7 @@ class ControlRegister(Register):
 class FrequencyRegister(Register):
 
     def __init__(self, idx, freq = FREQ_DEFAULT, freq_mclk = FREQ_MCLK,
-                 name = 'Frequency', code_name = None, address = None, description = 'AD983x Frequency Register'):
+                 name = 'Frequency', code_name = None, address = None, description = 'AD98xx Frequency Register'):
         super().__init__(name = name,
                          code_name = code_name,
                          address = address,
@@ -85,8 +80,8 @@ class FrequencyRegister(Register):
                                      description = '''Frequency''')],
                          default_value = int((idx + 1) << 14))
         self.idx = idx
-        self._frequency = freq
         self.freq_mclk = freq_mclk
+        self.frequency = freq
 
 
     def reset(self):
@@ -134,7 +129,7 @@ class FrequencyRegister(Register):
 class PhaseRegister(Register):
 
     def __init__(self, idx, phase = PHASE_DEFAULT,
-                 name = 'Phase', code_name = None, address = None, description = 'AD983x Phase Register'):
+                 name = 'Phase', code_name = None, address = None, description = 'AD98xx Phase Register'):
         super().__init__(name = name,
                          code_name = code_name,
                          address = address,
@@ -150,11 +145,11 @@ class PhaseRegister(Register):
                                              description = '''Phase''')],
                          default_value = int(3 << 14) + int(idx << 13))
         self.idx = idx
-        self._phase = phase
+        self.phase = phase
 
 
     def reset(self):
-        self._phase = PHASE_DEFAULT
+        self.phase = PHASE_DEFAULT
         super().reset()
 
 
@@ -179,6 +174,11 @@ class AD98xx(Device):
     DEBUG_MODE = False
     REGISTERS_COUNT = 2
     FREQ_MCLK = int(25e6)
+
+    SHAPES_CONFIG = {'sine'       : {'OPBITEN': 0, 'SLEEP12': 0, 'Mode': 0, 'DIV2': 0},
+                     'triangle'   : {'OPBITEN': 0, 'SLEEP12': 0, 'Mode': 1, 'DIV2': 0},
+                     'square'     : {'OPBITEN': 1, 'SLEEP12': 1, 'Mode': 0, 'DIV2': 1},
+                     'half_square': {'OPBITEN': 1, 'SLEEP12': 1, 'Mode': 0, 'DIV2': 0}, }
 
 
     def __init__(self, spi, ss, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
@@ -314,10 +314,10 @@ class AD98xx(Device):
 
     @Device.shape.setter
     def shape(self, shape):
-        assert shape in SHAPES_CONFIG.keys(), 'Must be either {}'.format('/'.join(SHAPES_CONFIG.keys()))
+        assert shape in self.SHAPES_CONFIG.keys(), 'Must be either {}'.format('/'.join(self.SHAPES_CONFIG.keys()))
         self._shape = shape
-        for k in SHAPES_CONFIG[shape].keys():
-            self.control_register.elements[k].value = SHAPES_CONFIG[shape][k]
+        for k in self.SHAPES_CONFIG[shape].keys():
+            self.control_register.elements[k].value = self.SHAPES_CONFIG[shape][k]
         self._update_control_register()
 
 

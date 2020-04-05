@@ -6,7 +6,7 @@ import time
 try:
     from .ad98xx import ad98xx
 except:
-    import ad983x
+    import ad98xx
 
 
 
@@ -113,14 +113,14 @@ class ToolBox:
                           freq_start = freq_start, freq_end = freq_end, n_freqs = n_freqs,
                           sweep_type = freqs_type, n_cycles = 0)
         phases = range(0, 360)
-        shapes = list(ad98xx.SHAPES_CONFIG.keys())
+        shapes = list(devices[0].SHAPES_CONFIG.keys())
 
         (cycles_remains, need_to_count_down) = (1, False) if n_juggles is None else (n_juggles, True)
 
 
         def enable_output(value):
-            for d in devices:
-                d.enable_output(value)
+            for device in devices:
+                device.enable_output(value)
 
 
         for d in devices:

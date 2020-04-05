@@ -1,13 +1,13 @@
 try:
     from signal_generators import adapters
-    from signal_generators.ad98xx.ad98xx import ad983x
-    from signal_generators.ad98xx.ad98xx import modulators
-    from signal_generators.ad98xx.ad98xx import tools
+    from signal_generators import modulators
+    from signal_generators import tools
+    from signal_generators.ad98xx import ad9833
 except:
     import adapters
-    import ad983x
     import modulators
     import tools
+    import ad9833
 
     import machine
     import gc
@@ -21,12 +21,12 @@ _spi = adapters.SPI.get_uPy_spi(polarity = 1)
 _ss1 = adapters.Pin.get_uPy_pin(15, output = True)
 _ss2 = adapters.Pin.get_uPy_pin(4, output = True)
 
-ad1 = ad983x.AD983x(_spi, _ss1)
-ad2 = ad983x.AD983x(_spi, _ss2)
+ad1 = ad9833.AD9833(_spi, _ss1)
+ad2 = ad9833.AD9833(_spi, _ss2)
 
 # # Not used.
 # _ss3 = adapters.Pin.get_uPy_pin(16, output = True)
-# ad3 = ad98xx.AD983x(_spi, _ss3)
+# ad3 = ad9833.AD9833(_spi, _ss3)
 
 ## Modulators
 # bfsk = modulators.BFSK(_spi, _ss1)
