@@ -1,15 +1,15 @@
 from signal_generators import adapters
 from signal_generators import modulators
 from signal_generators import tools
-from signal_generators.ad983x import ad983x
+from signal_generators.ad98xx import ad98xx
 
 
 _spi = adapters.SPI.get_RPi_spi(mode = 2)
 _ss1 = adapters.Pin.get_RPi_pin(7, output = True)
 _ss2 = adapters.Pin.get_RPi_pin(25, output = True)
 
-ad1 = ad983x.AD983x(_spi, _ss1)
-ad2 = ad983x.AD983x(_spi, _ss2)
+ad1 = ad98xx.AD98xx(_spi, _ss1)
+ad2 = ad98xx.AD98xx(_spi, _ss2)
 
 bfsk = modulators.BFSK(ad1)
 bpsk = modulators.BPSK(ad1)

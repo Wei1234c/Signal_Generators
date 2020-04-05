@@ -11,8 +11,10 @@ except:
     from adapters import SPI
 
 FREQ_MCLK = int(25e6)
+POW2_32 = 2 ** 32
 POW2_28 = 2 ** 28
 POW2_12 = 2 ** 12
+POW2_5 = 2 ** 5
 BITS_PER_DEG = POW2_12 / DEGREES_IN_PI2
 
 SHAPES_CONFIG = {'sine'       : {'OPBITEN': 0, 'SLEEP12': 0, 'Mode': 0, 'DIV2': 0},
@@ -173,9 +175,10 @@ class PhaseRegister(Register):
 
 
 
-class AD983x(Device):
-    REGISTERS_COUNT = 2
+class AD98xx(Device):
     DEBUG_MODE = False
+    REGISTERS_COUNT = 2
+    FREQ_MCLK = int(25e6)
 
 
     def __init__(self, spi, ss, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
@@ -185,6 +188,7 @@ class AD983x(Device):
                         commands = commands)
         self._spi = SPI(spi, ss)
         self.freq_mclk = freq_mclk
+
         self.control_register = ControlRegister()
         self.frequency_registers = {i: FrequencyRegister(idx = i) for i in range(self.REGISTERS_COUNT)}
         self.phase_registers = {i: PhaseRegister(idx = i) for i in range(self.REGISTERS_COUNT)}

@@ -1,8 +1,8 @@
 try:
     from signal_generators import adapters
-    from signal_generators.ad983x.ad983x import ad983x
-    from signal_generators.ad983x.ad983x import modulators
-    from signal_generators.ad983x.ad983x import tools
+    from signal_generators.ad98xx.ad98xx import ad983x
+    from signal_generators.ad98xx.ad98xx import modulators
+    from signal_generators.ad98xx.ad98xx import tools
 except:
     import adapters
     import ad983x
@@ -26,7 +26,7 @@ ad2 = ad983x.AD983x(_spi, _ss2)
 
 # # Not used.
 # _ss3 = adapters.Pin.get_uPy_pin(16, output = True)
-# ad3 = ad983x.AD983x(_spi, _ss3)
+# ad3 = ad98xx.AD983x(_spi, _ss3)
 
 ## Modulators
 # bfsk = modulators.BFSK(_spi, _ss1)

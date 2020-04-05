@@ -2,12 +2,12 @@
 
 
 try:
-    from ..ad983x.ad983x import *
+    from ..ad98xx.ad98xx import *
 except:
     from ad983x import *
 
 
 
-class AD9833(AD983x):
+class AD9833(AD98xx):
     REGISTERS_COUNT = 2
     DEBUG_MODE = False

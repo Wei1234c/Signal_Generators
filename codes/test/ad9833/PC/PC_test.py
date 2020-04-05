@@ -1,5 +1,5 @@
 from signal_generators import adapters
-from signal_generators.ad983x.ad9833 import *
+from signal_generators.ad98xx.ad9833 import *
 from signal_generators.shift_register import ShiftRegister
 
 
