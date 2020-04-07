@@ -4,9 +4,14 @@ from signal_generators import tools
 from signal_generators.ad98xx.ad9833 import *
 
 
-_spi = adapters.SPI.get_RPi_spi(mode = 2)
-_ss1 = adapters.Pin.get_RPi_pin(7, output = True)
-_ss2 = adapters.Pin.get_RPi_pin(25, output = True)
+with_hardware_device = True
+
+if with_hardware_device:
+    _spi = adapters.SPI.get_RPi_spi(mode = 2)
+    _ss1 = adapters.Pin.get_RPi_pin(7, output = True)
+    _ss2 = adapters.Pin.get_RPi_pin(25, output = True)
+else:
+    _spi = _ss1 = _ss2 = None  # using None for testing without actual hardware device.
 
 ad1 = AD9833(_spi, _ss1)
 ad2 = AD9833(_spi, _ss2)

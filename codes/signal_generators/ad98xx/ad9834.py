@@ -23,7 +23,7 @@ PIN/SW = 0 implies that the functions are being controlled using the appropriate
 SIGN/PIB = 1, the on-board comparator is connected to SIGN BIT OUT. After filtering the sinusoidal output from the DAC, the waveform can be applied to the comparator to generate a square waveform. Refer to Table 17.
 SIGN/PIB = 0, the MSB (or MSB/2) of the DAC data is connected to the SIGN BIT OUT pin. Bit DIV2 controls whether it is the MSB or MSB/2 that is output.''')
 
-        self._default_value = 0x2000
+        self.default_value = 0x2000
 
 
 

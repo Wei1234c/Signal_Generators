@@ -3,11 +3,11 @@
 
 try:
     from ..interfaces import *
-    from ..register import Register, Element
+    from ..register import Register, Element, array
     from ..adapters import SPI
 except:
     from interfaces import *
-    from register import Register, Element
+    from register import Register, Element, array
     from adapters import SPI
 
 FREQ_MCLK = int(25e6)
@@ -89,8 +89,8 @@ class FrequencyRegister(Register):
         super().reset()
 
 
-    def dump(self, as_hex = False):
-        len_name_field = super().dump(as_hex = as_hex)
+    def print(self, as_hex = False):
+        len_name_field = super().print(as_hex = as_hex)
         print('{:<{}s}:  {:0.2f}'.format('[ Hz ]', len_name_field + 5, self.frequency))
         if self.frequency != 0:
             print('{:<{}s}:  {:0.5e}'.format('[ Wave length (m) ]', len_name_field + 5,
@@ -153,8 +153,8 @@ class PhaseRegister(Register):
         super().reset()
 
 
-    def dump(self, as_hex = False):
-        len_name_field = super().dump(as_hex = as_hex)
+    def print(self, as_hex = False):
+        len_name_field = super().print(as_hex = as_hex)
         print('{:<{}s}:  {:0.2f}'.format('[ Degree ]', len_name_field + 5, self.phase))
 
 
@@ -181,12 +181,13 @@ class AD98xx(Device):
                      'half_square': {'OPBITEN': 1, 'SLEEP12': 1, 'Mode': 0, 'DIV2': 0}, }
 
 
-    def __init__(self, spi, ss, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
+    def __init__(self, spi, ss, ss_polarity = 1, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT,
+                 shape = SHAPE_DEFAULT,
                  freq_mclk = FREQ_MCLK, commands = None):
 
         Device.__init__(self, freq = freq, freq_correction = freq_correction, phase = phase, shape = shape,
                         commands = commands)
-        self._spi = SPI(spi, ss)
+        self._spi = SPI(spi, ss, ss_polarity = ss_polarity)
         self.freq_mclk = freq_mclk
 
         self.control_register = ControlRegister()
@@ -211,7 +212,7 @@ class AD98xx(Device):
         if reset:
             register.reset()
         self._spi.write(register.bytes)
-        self._dump_register(register)
+        self._print_register(register)
 
 
     def _update_control_register(self, reset = False):
@@ -224,7 +225,7 @@ class AD98xx(Device):
         self._enable_B28(True)
         self._spi.write(register.lsw)
         self._spi.write(register.msw)
-        self._dump_register(register)
+        self._print_register(register)
 
 
     def _update_all_registers(self, reset = False):
@@ -242,11 +243,11 @@ class AD98xx(Device):
         self._update_all_registers(reset = True)
 
 
-    def dump(self, as_hex = False):
-        self.control_register.dump(as_hex = as_hex)
+    def print(self, as_hex = False):
+        self.control_register.print(as_hex = as_hex)
         for i in range(self.REGISTERS_COUNT):
-            self.frequency_registers[i].dump(as_hex = as_hex)
-            self.phase_registers[i].dump(as_hex = as_hex)
+            self.frequency_registers[i].print(as_hex = as_hex)
+            self.phase_registers[i].print(as_hex = as_hex)
 
 
     @property
@@ -259,7 +260,7 @@ class AD98xx(Device):
         return DEGREES_IN_PI2 / POW2_12
 
 
-    def set_frequency(self, freq, idx = None, freq_correction = 0, freq_mclk = None):
+    def set_frequency(self, freq, idx = None, freq_correction = None, freq_mclk = None):
         freq_reg = self.frequency_registers[self.active_freq_reg_idx if idx is None else idx]
         freq_reg.frequency = freq + (self.freq_correction if freq_correction is None else freq_correction)
         freq_reg.freq_mclk = self.freq_mclk if freq_mclk is None else freq_mclk
@@ -361,11 +362,6 @@ class AD98xx(Device):
 
     def close(self):
         self.stop()
-
-
-    def _dump_register(self, register):
-        if self.DEBUG_MODE:
-            register.dump()
 
 
     def _enable_internal_clock(self, value = True):

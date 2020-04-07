@@ -65,8 +65,13 @@ class ControlRegister(Register):
         self.elements['Phase'].value = int(round((phase % DEGREES_IN_PI2) * POW2_5 / DEGREES_IN_PI2)) & 0x1F
 
 
-    def dump(self, as_hex = False):
-        len_name_field = super().dump(as_hex = as_hex)
+    @property
+    def bytes(self):
+        return array('B', self.value.to_bytes(self.n_bytes, 'big'))[::-1]  # LSB first
+
+
+    def print(self, as_hex = False):
+        len_name_field = super().print(as_hex = as_hex)
         print('{:<{}s}:  {:0.2f}'.format('[ Hz ]', len_name_field + 5, self.frequency))
         if self.frequency != 0:
             print('{:<{}s}:  {:0.5e}'.format('[ Wave length (m) ]', len_name_field + 5,
@@ -74,8 +79,6 @@ class ControlRegister(Register):
             print('{:<{}s}:  {:0.5e}'.format('[ Period (s) ]', len_name_field + 5,
                                              1 / self.frequency))
         print('{:<{}s}:  {}'.format('[ MCLK ]', len_name_field + 5, self.freq_mclk))
-
-        len_name_field = super().dump(as_hex = as_hex)
         print('{:<{}s}:  {:0.2f}'.format('[ Phase degree ]', len_name_field + 5, self.phase))
 
 
@@ -88,15 +91,15 @@ class AD9850(AD98xx):
     SHAPES_CONFIG = {'sine': None}
 
 
-    def __init__(self, spi, ss, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
-                 freq_mclk = FREQ_MCLK, commands = None,
-                 pin_reset = None):
+    def __init__(self, spi, ss, pin_reset, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT,
+                 shape = SHAPE_DEFAULT,
+                 freq_mclk = FREQ_MCLK, commands = None):
 
-        super().__init__(spi, ss, freq = freq, freq_correction = freq_correction, phase = phase, shape = shape,
-                         freq_mclk = freq_mclk, commands = commands)
-
+        Device.__init__(self, freq = freq, freq_correction = freq_correction, phase = phase, shape = shape,
+                        commands = commands)
         self._spi = SPI(spi, ss, ss_polarity = 0)
         self.pin_reset = pin_reset
+        self.freq_mclk = freq_mclk
         self.control_register = ControlRegister()
         self.init()
 
@@ -109,6 +112,13 @@ class AD9850(AD98xx):
         self.start()
 
 
+    def _update_register(self, register, reset = False):
+        if reset:
+            register.reset()
+        self._spi.write(register.bytes)
+        self._print_register(register)
+
+
     def _update_frequency_register(self, register, reset = False):
         raise NotImplementedError()
 
@@ -117,8 +127,8 @@ class AD9850(AD98xx):
         self._update_control_register(reset = reset)
 
 
-    def dump(self, as_hex = False):
-        self.control_register.dump(as_hex = as_hex)
+    def print(self, as_hex = False):
+        self.control_register.print(as_hex = as_hex)
 
 
     @property
@@ -131,7 +141,7 @@ class AD9850(AD98xx):
         return DEGREES_IN_PI2 / POW2_5
 
 
-    def set_frequency(self, freq, freq_correction = 0, freq_mclk = None):
+    def set_frequency(self, freq, freq_correction = None, freq_mclk = None):
         self.control_register.frequency = freq + (self.freq_correction if freq_correction is None else freq_correction)
         self.control_register.freq_mclk = self.freq_mclk if freq_mclk is None else freq_mclk
         self._update_control_register()

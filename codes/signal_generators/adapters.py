@@ -14,10 +14,12 @@ IS_MICROPYTHON = (sys.implementation.name == 'micropython')
 try:
 
     from bridges.ftdi.controllers.gpio import GpioController
+    from bridges.ftdi.controllers.i2c import I2cController
     from bridges.ftdi.adapters.micropython.machine import Pin as ftdi_Pin
     from .shift_register import ShiftRegister
 
 
+    ftdi_SMBus = I2cController().SMBus
     GPIO_PORT = GpioController()
 except Exception as e:
     if not isinstance(e, ImportError):
@@ -89,26 +91,32 @@ class SPI:
         self._ss = ss
         self._ss_polarity = ss_polarity
 
+        if self._spi is not None:
+            if IS_RPi:
+                self._write = self._spi.writebytes
+            elif IS_MICROPYTHON:
+                self._write = self._spi.write
+            elif IS_PC:
+                self._write = self._spi.write
+        else:
+            self._write = lambda x: None
+
 
     def write(self, bytes_array):
 
         if self.DEBUG_MODE:
             print('Sending: {}'.format(hex(int.from_bytes(bytes_array, 'big'))))
 
-        if self._spi is not None:
-            self._ss.high()
+        if not self._ss_polarity == 1:
             self._ss.low()
+        self._ss.high()
+        self._ss.low()
 
-            if IS_RPi:
-                self._spi.writebytes(bytes_array)
-            elif IS_MICROPYTHON:
-                self._spi.write(bytes_array)
-            elif IS_PC:
-                self._spi.write(bytes_array)
+        self._write(bytes_array)
 
-            self._ss.high()
-            if not self._ss_polarity == 1:
-                self._ss.low()
+        self._ss.high()
+        if not self._ss_polarity == 1:
+            self._ss.low()
 
 
     @classmethod
@@ -127,7 +135,7 @@ class SPI:
 
 
     @classmethod
-    def get_RPi_spi(cls, mode = 0b00):
+    def get_RPi_spi(cls, mode = 0b00, lsbfirst = False):
         import spidev
 
         spi = None
@@ -139,7 +147,7 @@ class SPI:
             spi.open(bus, device)
             spi.max_speed_hz = 10000000
             spi.mode = mode
-            spi.lsbfirst = False
+            spi.lsbfirst = lsbfirst
 
         except Exception as e:
             print(e)
@@ -155,3 +163,62 @@ class SPI:
         return ShiftRegister(stb_pin = stb_pin, clk_pin = clk_pin, data_pin = data_pin, bits = bits,
                              lsbfirst = lsbfirst,
                              polarity = polarity, phase = phase)
+
+
+
+class I2C:
+    DEBUG_MODE = False
+
+
+    def __init__(self, i2c, address):
+        self._i2c = i2c
+        self.address = address
+
+        if self._i2c is not None:
+            if IS_RPi:
+                self._write = self._i2c.writebytes
+            elif IS_MICROPYTHON:
+                self._write = self._i2c.write
+            elif IS_PC:  # Ftdi
+                self._write = self._i2c.write
+        else:
+            self._write = lambda x, y: None
+            self._read = lambda x: None
+
+
+    def write(self, reg_address, bytes_array):
+        if self.DEBUG_MODE:
+            print('Sending: {}'.format(hex(int.from_bytes(bytes_array, 'big'))))
+
+        self._write(reg_address, bytes_array)
+
+
+    def read(self, reg_address):
+        bytes_array = self._read(reg_address)
+
+        if self.DEBUG_MODE:
+            print('Receive: {}'.format(hex(int.from_bytes(bytes_array, 'big'))))
+
+        return bytes_array
+
+
+    @classmethod
+    def get_uPy_i2c(cls, id = -1, scl_pin_id = 5, sda_pin_id = 4, freq = 400000):
+        import machine
+
+        return machine.I2C(id = id,
+                           scl = machine.Pin(scl_pin_id, machine.Pin.OUT),
+                           sda = machine.Pin(sda_pin_id),
+                           freq = freq)
+
+
+    @classmethod
+    def get_RPi_i2c(cls, bus_id = 1):
+        from smbus2 import SMBus
+
+        return SMBus(bus_id)
+
+
+    @classmethod
+    def get_Ftdi_i2c(cls):
+        return ftdi_SMBus(1)  # the bus number actually doesn't matter.

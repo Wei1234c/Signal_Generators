@@ -4,7 +4,7 @@ from signal_generators.ad98xx.ad9833 import *
 
 
 adapters.SPI.DEBUG_MODE = False  # whether to show SPI written data.
-AD9833.DEBUG_MODE = False  # whether to dump registers.
+AD9833.DEBUG_MODE = False  # whether to print registers.
 
 with_hardware_device = True
 

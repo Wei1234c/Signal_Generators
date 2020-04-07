@@ -165,10 +165,10 @@ class Device:
         raise NotImplementedError()
 
 
-    def dump(self):
+    def print(self):
         raise NotImplementedError()
 
 
-    def _dump_register(self, register):
+    def _print_register(self, register):
         if self.DEBUG_MODE:
-            register.dump()
+            register.print()
