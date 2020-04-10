@@ -28,7 +28,7 @@ class ControlRegister(Register):
                                      description = '''Control'''),
                              Element(name = 'Frequency', idx_lowest_bit = 0, n_bits = 32, value = 0,
                                      description = '''Frequency''')],
-                         default_value = 0x2000)
+                         default_value = 0x0400000000)
 
         self._frequency = freq
         self._phase = phase
@@ -97,7 +97,7 @@ class AD9850(AD98xx):
 
         Device.__init__(self, freq = freq, freq_correction = freq_correction, phase = phase, shape = shape,
                         commands = commands)
-        self._spi = SPI(spi, ss, ss_polarity = 0)
+        self._spi = SPI(spi, ss, ss_polarity = 1)
         self.pin_reset = pin_reset
         self.freq_mclk = freq_mclk
         self.control_register = ControlRegister()
@@ -105,6 +105,8 @@ class AD9850(AD98xx):
 
 
     def init(self):
+        self._action = 'init'
+        self.reset()
         self.enable_output(False)
         self.set_frequency(freq = self.frequency, freq_mclk = self.freq_mclk)
         self.set_phase(phase = self.phase)
@@ -115,9 +117,9 @@ class AD9850(AD98xx):
     def _update_register(self, register, reset = False):
         if reset:
             register.reset()
+        self._show_bus_data(register.bytes, address = register.address)
         self._spi.write(register.bytes)
         self._print_register(register)
-
 
     def _update_frequency_register(self, register, reset = False):
         raise NotImplementedError()
@@ -142,21 +144,27 @@ class AD9850(AD98xx):
 
 
     def set_frequency(self, freq, freq_correction = None, freq_mclk = None):
-        self.control_register.frequency = freq + (self.freq_correction if freq_correction is None else freq_correction)
+        freq = freq + (self.freq_correction if freq_correction is None else freq_correction)
+        self._action = 'set_frequency {}'.format(freq)
+
+        self.control_register.frequency = freq
         self.control_register.freq_mclk = self.freq_mclk if freq_mclk is None else freq_mclk
         self._update_control_register()
 
 
     def set_phase(self, phase):
+        self._action = 'set_phase {}'.format(phase)
         self.control_register.phase = phase
         self._update_control_register()
 
 
     def select_freq_source(self, idx):
+        self._action = 'select_freq_source {}'.format(idx)
         raise NotImplementedError()
 
 
     def select_phase_source(self, idx):
+        self._action = 'select_phase_source {}'.format(idx)
         raise NotImplementedError()
 
 
@@ -172,7 +180,7 @@ class AD9850(AD98xx):
 
     @property
     def current_frequency_register(self):
-        raise NotImplementedError()
+        return self.control_register
 
 
     @property
@@ -182,7 +190,7 @@ class AD9850(AD98xx):
 
     @property
     def current_phase_register(self):
-        raise NotImplementedError()
+        return self.control_register
 
 
     @property
@@ -192,15 +200,19 @@ class AD9850(AD98xx):
 
     @AD98xx.shape.setter
     def shape(self, shape):
+        self._action = 'set shape {}'.format(shape)
         self._shape = shape
 
+    def reset(self):
+        self._action = 'reset'
+        if self.pin_reset is not None:
+            self.pin_reset.high()
+            self.pin_reset.low()
+        super().reset()
 
     def enable_output(self, value = True):
-        if value:
-            self.pin_reset.low()
-            self.update()
-        else:
-            self.pin_reset.high()
+        self._action = 'enable_output {}'.format(value)
+        self._power_down(not value)
 
 
     def _power_down(self, value = True):
@@ -209,6 +221,7 @@ class AD9850(AD98xx):
 
 
     def _enable_internal_clock(self, value = True):
+        self._action = '_enable_internal_clock {}'.format(value)
         self._power_down(not value)
 
 

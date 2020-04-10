@@ -3,11 +3,6 @@
 import time
 
 
-try:
-    from .interfaces import Device, FREQ_DEFAULT
-except:
-    from interfaces import Device, FREQ_DEFAULT
-
 DEFAULT_CARRIER_FREQ = int(1e5)
 
 
@@ -18,7 +13,7 @@ class Modulator:
     SYMBOLS = (ON, OFF)
 
 
-    def __init__(self, device: Device, freq = DEFAULT_CARRIER_FREQ, time_ratio = 1):
+    def __init__(self, device, freq = DEFAULT_CARRIER_FREQ, time_ratio = 1):
         self._device = device
         self.freq = freq
         self.time_ratio = time_ratio

@@ -1,5 +1,5 @@
 try:
-    from signal_generators import adapters
+    from utilities.adapters import peripherals
     from signal_generators import modulators
     from signal_generators import tools
     from signal_generators.ad98xx import ad9833
@@ -14,18 +14,17 @@ except:
 
 gc.collect()
 
-adapters.SPI.DEBUG_MODE = False
 
 ## Generators
-_spi = adapters.SPI.get_uPy_spi(polarity = 1)
-_ss1 = adapters.Pin.get_uPy_pin(15, output = True)
-_ss2 = adapters.Pin.get_uPy_pin(4, output = True)
+_spi = peripherals.SPI.get_uPy_spi(polarity = 1)
+_ss1 = peripherals.Pin.get_uPy_pin(15, output = True)
+_ss2 = peripherals.Pin.get_uPy_pin(4, output = True)
 
 ad1 = ad9833.AD9833(_spi, _ss1)
 ad2 = ad9833.AD9833(_spi, _ss2)
 
 # # Not used.
-# _ss3 = adapters.Pin.get_uPy_pin(16, output = True)
+# _ss3 = peripherals.Pin.get_uPy_pin(16, output = True)
 # ad3 = ad9833.AD9833(_spi, _ss3)
 
 ## Modulators

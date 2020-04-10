@@ -3,12 +3,6 @@ import random
 import time
 
 
-try:
-    from .ad98xx import ad98xx
-except:
-    import ad98xx
-
-
 
 class ToolBox:
     SWEEP_TYPES = ('logarithm', 'linear')

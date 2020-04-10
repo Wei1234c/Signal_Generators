@@ -15,6 +15,8 @@ SHAPE_DEFAULT = 'sine'
 class Device:
     REGISTERS_COUNT = 0
     DEBUG_MODE = False
+    DEBUG_MODE_SHOW_BUS_DATA = DEBUG_MODE
+    DEBUG_MODE_PRINT_REGISTER = DEBUG_MODE
 
 
     def __init__(self, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
@@ -24,6 +26,7 @@ class Device:
         self.phase = phase
         self._shape = shape
         self._enabled = False
+        self._action = ''
         self.do(commands)
 
 
@@ -120,11 +123,6 @@ class Device:
         return self._enabled
 
 
-    @enabled.setter
-    def enabled(self, value):
-        self._enabled = value
-
-
     def enable(self, value):
         raise NotImplementedError()
 
@@ -169,6 +167,14 @@ class Device:
         raise NotImplementedError()
 
 
+    def _show_bus_data(self, bytes_array, address = None, reading = False):
+        if self.DEBUG_MODE_SHOW_BUS_DATA:
+            print('\nAction: {}, {}: {}{}'.format(self._action,
+                                                  'reading' if reading else 'writing',
+                                                  hex(int.from_bytes(bytes_array, 'big')),
+                                                  '' if address is None else ', Address: {}'.format(address)))
+
+
     def _print_register(self, register):
-        if self.DEBUG_MODE:
+        if self.DEBUG_MODE_PRINT_REGISTER:
             register.print()

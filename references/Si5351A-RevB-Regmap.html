@@ -1,0 +1,184 @@
+
+                    <style type='text/css'>
+                    TABLE,TH,TD,DIV { font-family: Segoe UI; font-size: 10pt; }
+                    TD,TH { padding-right:5px; text-align:left;}
+                    TR { background-color:white; }
+                    TD { vertical-align:top; }
+                    TH {  vertical-align:bottom; }
+                    A:link,A:visited { color: #1D4590; }
+                    A.active, A:hover { color: #0000DD; } 
+                    </style>
+<TABLE cellpadding=3 cellspacing=0 border=1>
+<thead>
+<TR><TH valign=top><B>Setting Name</B></TH><TH valign=top><B>Location</B></TH><TH valign=top><B>Start Address</B></TH><TH valign=top><B>Start Bit</B></TH><TH valign=top><B>Num Bits</B></TH><TH valign=top><B>NVM</B></TH><TH valign=top><B>Type</B></TH></TR>
+</thead>
+<TR><TD valign=top>SYS_INIT</TD><TD valign=top>0x0000[7]</TD><TD valign=top>0x0000</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/O</TD></TR>
+<TR><TD valign=top>LOL_B</TD><TD valign=top>0x0000[6]</TD><TD valign=top>0x0000</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/O</TD></TR>
+<TR><TD valign=top>LOL_A</TD><TD valign=top>0x0000[5]</TD><TD valign=top>0x0000</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/O</TD></TR>
+<TR><TD valign=top>CLK_LOS</TD><TD valign=top>0x0000[4]</TD><TD valign=top>0x0000</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/O</TD></TR>
+<TR><TD valign=top>XO_LOS</TD><TD valign=top>0x0000[3]</TD><TD valign=top>0x0000</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/O</TD></TR>
+<TR><TD valign=top>REVID</TD><TD valign=top>0x0000[1:0]</TD><TD valign=top>0x0000</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/O</TD></TR>
+<TR><TD valign=top>SYS_INIT_STKY</TD><TD valign=top>0x0001[7]</TD><TD valign=top>0x0001</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>LOL_B_STKY</TD><TD valign=top>0x0001[6]</TD><TD valign=top>0x0001</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>LOL_A_STKY</TD><TD valign=top>0x0001[5]</TD><TD valign=top>0x0001</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK_LOS_STKY</TD><TD valign=top>0x0001[4]</TD><TD valign=top>0x0001</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>XO_LOS_STKY</TD><TD valign=top>0x0001[3]</TD><TD valign=top>0x0001</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>SYS_INIT_MASK</TD><TD valign=top>0x0002[7]</TD><TD valign=top>0x0002</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>LOL_B_MASK</TD><TD valign=top>0x0002[6]</TD><TD valign=top>0x0002</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>LOL_A_MASK</TD><TD valign=top>0x0002[5]</TD><TD valign=top>0x0002</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK_LOS_MASK</TD><TD valign=top>0x0002[4]</TD><TD valign=top>0x0002</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>XO_LOS_MASK</TD><TD valign=top>0x0002[3]</TD><TD valign=top>0x0002</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK_OEB</TD><TD valign=top>0x0003[7:0]</TD><TD valign=top>0x0003</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>AUTO_INSELB</TD><TD valign=top>0x0004[7]</TD><TD valign=top>0x0004</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>AUTO_INSELA</TD><TD valign=top>0x0004[6]</TD><TD valign=top>0x0004</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>DIS_RESET_LOLB</TD><TD valign=top>0x0004[5]</TD><TD valign=top>0x0004</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>DIS_RESET_LOLA</TD><TD valign=top>0x0004[4]</TD><TD valign=top>0x0004</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>STOPCLK_LOLB</TD><TD valign=top>0x0004[1]</TD><TD valign=top>0x0004</TD><TD valign=top>1</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>STOPCLK_LOLA</TD><TD valign=top>0x0004[0]</TD><TD valign=top>0x0004</TD><TD valign=top>0</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>I2C_ADDR_CTRL</TD><TD valign=top>0x0007[7:4]</TD><TD valign=top>0x0007</TD><TD valign=top>4</TD><TD valign=top>4</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>OEB_MASK0</TD><TD valign=top>0x0009[7:0]</TD><TD valign=top>0x0009</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>OEB_MASK1</TD><TD valign=top>0x000A[7:0]</TD><TD valign=top>0x000A</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>OEB_MASK2</TD><TD valign=top>0x000B[7:0]</TD><TD valign=top>0x000B</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>INSEL1_CTRL</TD><TD valign=top>0x000E[7:6]</TD><TD valign=top>0x000E</TD><TD valign=top>6</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>INSEL0_CTRL</TD><TD valign=top>0x000E[5:4]</TD><TD valign=top>0x000E</TD><TD valign=top>4</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>RST1_CTRL</TD><TD valign=top>0x000E[3:2]</TD><TD valign=top>0x000E</TD><TD valign=top>2</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>RST0_CTRL</TD><TD valign=top>0x000E[1:0]</TD><TD valign=top>0x000E</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLKIN_DIV</TD><TD valign=top>0x000F[7:6]</TD><TD valign=top>0x000F</TD><TD valign=top>6</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>PLLB_INSELB</TD><TD valign=top>0x000F[5]</TD><TD valign=top>0x000F</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>PLLA_INSELB</TD><TD valign=top>0x000F[4]</TD><TD valign=top>0x000F</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>PLLB_SRC</TD><TD valign=top>0x000F[3]</TD><TD valign=top>0x000F</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>PLLA_SRC</TD><TD valign=top>0x000F[2]</TD><TD valign=top>0x000F</TD><TD valign=top>2</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK0_PDN</TD><TD valign=top>0x0010[7]</TD><TD valign=top>0x0010</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS0_INT</TD><TD valign=top>0x0010[6]</TD><TD valign=top>0x0010</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS0_SRC</TD><TD valign=top>0x0010[5]</TD><TD valign=top>0x0010</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK0_INV</TD><TD valign=top>0x0010[4]</TD><TD valign=top>0x0010</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK0_SRC</TD><TD valign=top>0x0010[3:2]</TD><TD valign=top>0x0010</TD><TD valign=top>2</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK0_IDRV</TD><TD valign=top>0x0010[1:0]</TD><TD valign=top>0x0010</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK1_PDN</TD><TD valign=top>0x0011[7]</TD><TD valign=top>0x0011</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS1_INT</TD><TD valign=top>0x0011[6]</TD><TD valign=top>0x0011</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS1_SRC</TD><TD valign=top>0x0011[5]</TD><TD valign=top>0x0011</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK1_INV</TD><TD valign=top>0x0011[4]</TD><TD valign=top>0x0011</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK1_SRC</TD><TD valign=top>0x0011[3:2]</TD><TD valign=top>0x0011</TD><TD valign=top>2</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK1_IDRV</TD><TD valign=top>0x0011[1:0]</TD><TD valign=top>0x0011</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK2_PDN</TD><TD valign=top>0x0012[7]</TD><TD valign=top>0x0012</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS2_INT</TD><TD valign=top>0x0012[6]</TD><TD valign=top>0x0012</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS2_SRC</TD><TD valign=top>0x0012[5]</TD><TD valign=top>0x0012</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK2_INV</TD><TD valign=top>0x0012[4]</TD><TD valign=top>0x0012</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK2_SRC</TD><TD valign=top>0x0012[3:2]</TD><TD valign=top>0x0012</TD><TD valign=top>2</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK2_IDRV</TD><TD valign=top>0x0012[1:0]</TD><TD valign=top>0x0012</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK3_PDN</TD><TD valign=top>0x0013[7]</TD><TD valign=top>0x0013</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS3_INT</TD><TD valign=top>0x0013[6]</TD><TD valign=top>0x0013</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS3_SRC</TD><TD valign=top>0x0013[5]</TD><TD valign=top>0x0013</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK3_INV</TD><TD valign=top>0x0013[4]</TD><TD valign=top>0x0013</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK3_SRC</TD><TD valign=top>0x0013[3:2]</TD><TD valign=top>0x0013</TD><TD valign=top>2</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK3_IDRV</TD><TD valign=top>0x0013[1:0]</TD><TD valign=top>0x0013</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK4_PDN</TD><TD valign=top>0x0014[7]</TD><TD valign=top>0x0014</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS4_INT</TD><TD valign=top>0x0014[6]</TD><TD valign=top>0x0014</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS4_SRC</TD><TD valign=top>0x0014[5]</TD><TD valign=top>0x0014</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK4_INV</TD><TD valign=top>0x0014[4]</TD><TD valign=top>0x0014</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK4_SRC</TD><TD valign=top>0x0014[3:2]</TD><TD valign=top>0x0014</TD><TD valign=top>2</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK4_IDRV</TD><TD valign=top>0x0014[1:0]</TD><TD valign=top>0x0014</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK5_PDN</TD><TD valign=top>0x0015[7]</TD><TD valign=top>0x0015</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS5_INT</TD><TD valign=top>0x0015[6]</TD><TD valign=top>0x0015</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS5_SRC</TD><TD valign=top>0x0015[5]</TD><TD valign=top>0x0015</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK5_INV</TD><TD valign=top>0x0015[4]</TD><TD valign=top>0x0015</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK5_SRC</TD><TD valign=top>0x0015[3:2]</TD><TD valign=top>0x0015</TD><TD valign=top>2</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK5_IDRV</TD><TD valign=top>0x0015[1:0]</TD><TD valign=top>0x0015</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK6_PDN</TD><TD valign=top>0x0016[7]</TD><TD valign=top>0x0016</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>FBA_INT</TD><TD valign=top>0x0016[6]</TD><TD valign=top>0x0016</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS6_SRC</TD><TD valign=top>0x0016[5]</TD><TD valign=top>0x0016</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK6_INV</TD><TD valign=top>0x0016[4]</TD><TD valign=top>0x0016</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK6_SRC</TD><TD valign=top>0x0016[3:2]</TD><TD valign=top>0x0016</TD><TD valign=top>2</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK6_IDRV</TD><TD valign=top>0x0016[1:0]</TD><TD valign=top>0x0016</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK7_PDN</TD><TD valign=top>0x0017[7]</TD><TD valign=top>0x0017</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>FBB_INT</TD><TD valign=top>0x0017[6]</TD><TD valign=top>0x0017</TD><TD valign=top>6</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS7_SRC</TD><TD valign=top>0x0017[5]</TD><TD valign=top>0x0017</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK7_INV</TD><TD valign=top>0x0017[4]</TD><TD valign=top>0x0017</TD><TD valign=top>4</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK7_SRC</TD><TD valign=top>0x0017[3:2]</TD><TD valign=top>0x0017</TD><TD valign=top>2</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK7_IDRV</TD><TD valign=top>0x0017[1:0]</TD><TD valign=top>0x0017</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK3_DIS_STATE</TD><TD valign=top>0x0018[7:6]</TD><TD valign=top>0x0018</TD><TD valign=top>6</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK2_DIS_STATE</TD><TD valign=top>0x0018[5:4]</TD><TD valign=top>0x0018</TD><TD valign=top>4</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK1_DIS_STATE</TD><TD valign=top>0x0018[3:2]</TD><TD valign=top>0x0018</TD><TD valign=top>2</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK0_DIS_STATE</TD><TD valign=top>0x0018[1:0]</TD><TD valign=top>0x0018</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK7_DIS_STATE</TD><TD valign=top>0x0019[7:6]</TD><TD valign=top>0x0019</TD><TD valign=top>6</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK6_DIS_STATE</TD><TD valign=top>0x0019[5:4]</TD><TD valign=top>0x0019</TD><TD valign=top>4</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK5_DIS_STATE</TD><TD valign=top>0x0019[3:2]</TD><TD valign=top>0x0019</TD><TD valign=top>2</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK4_DIS_STATE</TD><TD valign=top>0x0019[1:0]</TD><TD valign=top>0x0019</TD><TD valign=top>0</TD><TD valign=top>2</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>FBA_PI_OVRD</TD><TD valign=top>0x001C[3]</TD><TD valign=top>0x001C</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>FBA_INT_OVRD</TD><TD valign=top>0x001C[2]</TD><TD valign=top>0x001C</TD><TD valign=top>2</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MSNA_P1</TD><TD valign=top>0x001C[17:0]</TD><TD valign=top>0x001C</TD><TD valign=top>0</TD><TD valign=top>18</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MSNA_P3</TD><TD valign=top>0x001F[23:4]</TD><TD valign=top>0x001F</TD><TD valign=top>4</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MSNA_P2</TD><TD valign=top>0x001F[19:0]</TD><TD valign=top>0x001F</TD><TD valign=top>0</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>FBB_PI_OVRD</TD><TD valign=top>0x0024[3]</TD><TD valign=top>0x0024</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>FBB_INT_OVRD</TD><TD valign=top>0x0024[2]</TD><TD valign=top>0x0024</TD><TD valign=top>2</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MSNB_P1</TD><TD valign=top>0x0024[17:0]</TD><TD valign=top>0x0024</TD><TD valign=top>0</TD><TD valign=top>18</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MSNB_P3</TD><TD valign=top>0x0027[23:4]</TD><TD valign=top>0x0027</TD><TD valign=top>4</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MSNB_P2</TD><TD valign=top>0x0027[19:0]</TD><TD valign=top>0x0027</TD><TD valign=top>0</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>R0_DIV</TD><TD valign=top>0x002C[6:4]</TD><TD valign=top>0x002C</TD><TD valign=top>4</TD><TD valign=top>3</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS0_DIVBY4_1</TD><TD valign=top>0x002C[3]</TD><TD valign=top>0x002C</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS0_DIVBY4_0</TD><TD valign=top>0x002C[2]</TD><TD valign=top>0x002C</TD><TD valign=top>2</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS0_P1</TD><TD valign=top>0x002C[17:0]</TD><TD valign=top>0x002C</TD><TD valign=top>0</TD><TD valign=top>18</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS0_P4</TD><TD valign=top>0x002F[23:4]</TD><TD valign=top>0x002F</TD><TD valign=top>4</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS0_P2</TD><TD valign=top>0x002F[19:0]</TD><TD valign=top>0x002F</TD><TD valign=top>0</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>R1_DIV</TD><TD valign=top>0x0034[6:4]</TD><TD valign=top>0x0034</TD><TD valign=top>4</TD><TD valign=top>3</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS1_DIVBY4_1</TD><TD valign=top>0x0034[3]</TD><TD valign=top>0x0034</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS1_DIVBY4_0</TD><TD valign=top>0x0034[2]</TD><TD valign=top>0x0034</TD><TD valign=top>2</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS1_P1</TD><TD valign=top>0x0034[17:0]</TD><TD valign=top>0x0034</TD><TD valign=top>0</TD><TD valign=top>18</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS1_P4</TD><TD valign=top>0x0037[23:4]</TD><TD valign=top>0x0037</TD><TD valign=top>4</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS1_P2</TD><TD valign=top>0x0037[19:0]</TD><TD valign=top>0x0037</TD><TD valign=top>0</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>R2_DIV</TD><TD valign=top>0x003C[6:4]</TD><TD valign=top>0x003C</TD><TD valign=top>4</TD><TD valign=top>3</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS2_DIVBY4_1</TD><TD valign=top>0x003C[3]</TD><TD valign=top>0x003C</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS2_DIVBY4_0</TD><TD valign=top>0x003C[2]</TD><TD valign=top>0x003C</TD><TD valign=top>2</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS2_P1</TD><TD valign=top>0x003C[17:0]</TD><TD valign=top>0x003C</TD><TD valign=top>0</TD><TD valign=top>18</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS2_P4</TD><TD valign=top>0x003F[23:4]</TD><TD valign=top>0x003F</TD><TD valign=top>4</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS2_P2</TD><TD valign=top>0x003F[19:0]</TD><TD valign=top>0x003F</TD><TD valign=top>0</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>R3_DIV</TD><TD valign=top>0x0044[6:4]</TD><TD valign=top>0x0044</TD><TD valign=top>4</TD><TD valign=top>3</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS3_DIVBY4_1</TD><TD valign=top>0x0044[3]</TD><TD valign=top>0x0044</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS3_DIVBY4_0</TD><TD valign=top>0x0044[2]</TD><TD valign=top>0x0044</TD><TD valign=top>2</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS3_P1</TD><TD valign=top>0x0044[17:0]</TD><TD valign=top>0x0044</TD><TD valign=top>0</TD><TD valign=top>18</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS3_P4</TD><TD valign=top>0x0047[23:4]</TD><TD valign=top>0x0047</TD><TD valign=top>4</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS3_P2</TD><TD valign=top>0x0047[19:0]</TD><TD valign=top>0x0047</TD><TD valign=top>0</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>R4_DIV</TD><TD valign=top>0x004C[6:4]</TD><TD valign=top>0x004C</TD><TD valign=top>4</TD><TD valign=top>3</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS4_DIVBY4_1</TD><TD valign=top>0x004C[3]</TD><TD valign=top>0x004C</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS4_DIVBY4_0</TD><TD valign=top>0x004C[2]</TD><TD valign=top>0x004C</TD><TD valign=top>2</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS4_P1</TD><TD valign=top>0x004C[17:0]</TD><TD valign=top>0x004C</TD><TD valign=top>0</TD><TD valign=top>18</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS4_P4</TD><TD valign=top>0x004F[23:4]</TD><TD valign=top>0x004F</TD><TD valign=top>4</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS4_P2</TD><TD valign=top>0x004F[19:0]</TD><TD valign=top>0x004F</TD><TD valign=top>0</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>R5_DIV</TD><TD valign=top>0x0054[6:4]</TD><TD valign=top>0x0054</TD><TD valign=top>4</TD><TD valign=top>3</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS5_DIVBY4_1</TD><TD valign=top>0x0054[3]</TD><TD valign=top>0x0054</TD><TD valign=top>3</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS5_DIVBY4_0</TD><TD valign=top>0x0054[2]</TD><TD valign=top>0x0054</TD><TD valign=top>2</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS5_P1</TD><TD valign=top>0x0054[17:0]</TD><TD valign=top>0x0054</TD><TD valign=top>0</TD><TD valign=top>18</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS5_P4</TD><TD valign=top>0x0057[23:4]</TD><TD valign=top>0x0057</TD><TD valign=top>4</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS5_P2</TD><TD valign=top>0x0057[19:0]</TD><TD valign=top>0x0057</TD><TD valign=top>0</TD><TD valign=top>20</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS6_P2</TD><TD valign=top>0x005A[7:0]</TD><TD valign=top>0x005A</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>MS7_P2</TD><TD valign=top>0x005B[7:0]</TD><TD valign=top>0x005B</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>R7_DIV</TD><TD valign=top>0x005C[6:4]</TD><TD valign=top>0x005C</TD><TD valign=top>4</TD><TD valign=top>3</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>R6_DIV</TD><TD valign=top>0x005C[2:0]</TD><TD valign=top>0x005C</TD><TD valign=top>0</TD><TD valign=top>3</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>SSC_EN</TD><TD valign=top>0x0095[7]</TD><TD valign=top>0x0095</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>SSDN_P2</TD><TD valign=top>0x0095[14:0]</TD><TD valign=top>0x0095</TD><TD valign=top>0</TD><TD valign=top>15</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>SSC_MODE</TD><TD valign=top>0x0097[7]</TD><TD valign=top>0x0097</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>SSDN_P3</TD><TD valign=top>0x0097[14:0]</TD><TD valign=top>0x0097</TD><TD valign=top>0</TD><TD valign=top>15</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>SSDN_P1</TD><TD valign=top>0x0099[11:0]</TD><TD valign=top>0x0099</TD><TD valign=top>0</TD><TD valign=top>12</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>SSUDP</TD><TD valign=top>0x009A[15:4]</TD><TD valign=top>0x009A</TD><TD valign=top>4</TD><TD valign=top>12</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>SSUP_P2</TD><TD valign=top>0x009C[14:0]</TD><TD valign=top>0x009C</TD><TD valign=top>0</TD><TD valign=top>15</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>SSUP_P3</TD><TD valign=top>0x009E[14:0]</TD><TD valign=top>0x009E</TD><TD valign=top>0</TD><TD valign=top>15</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>SSUP_P1</TD><TD valign=top>0x00A0[11:0]</TD><TD valign=top>0x00A0</TD><TD valign=top>0</TD><TD valign=top>12</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>SS_NCLK</TD><TD valign=top>0x00A1[7:4]</TD><TD valign=top>0x00A1</TD><TD valign=top>4</TD><TD valign=top>4</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>VCXO_PARAM</TD><TD valign=top>0x00A2[21:0]</TD><TD valign=top>0x00A2</TD><TD valign=top>0</TD><TD valign=top>22</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK0_PHOFF</TD><TD valign=top>0x00A5[7:0]</TD><TD valign=top>0x00A5</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK1_PHOFF</TD><TD valign=top>0x00A6[7:0]</TD><TD valign=top>0x00A6</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK2_PHOFF</TD><TD valign=top>0x00A7[7:0]</TD><TD valign=top>0x00A7</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK3_PHOFF</TD><TD valign=top>0x00A8[7:0]</TD><TD valign=top>0x00A8</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK4_PHOFF</TD><TD valign=top>0x00A9[7:0]</TD><TD valign=top>0x00A9</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>CLK5_PHOFF</TD><TD valign=top>0x00AA[7:0]</TD><TD valign=top>0x00AA</TD><TD valign=top>0</TD><TD valign=top>8</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>PLLB_RST</TD><TD valign=top>0x00B1[7]</TD><TD valign=top>0x00B1</TD><TD valign=top>7</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>PLLA_RST</TD><TD valign=top>0x00B1[5]</TD><TD valign=top>0x00B1</TD><TD valign=top>5</TD><TD valign=top>1</TD><TD valign=top>No</TD><TD valign=top>R/W</TD></TR>
+<TR><TD valign=top>XTAL_CL</TD><TD valign=top>0x00B7[7:6]</TD><TD valign=top>0x00B7</TD><TD valign=top>6</TD><TD valign=top>2</TD><TD valign=top>Yes</TD><TD valign=top>R/W</TD></TR>
+</TABLE>
+
+                        <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>
+                        <script src='http://cdnjs.cloudflare.com/ajax/libs/floatthead/1.2.8/jquery.floatThead.js'></script>
+                        <script type='text/javascript'>
+                        $('table').floatThead(); // Seeks out all tables with a THEAD
+                        </script>
+                        

@@ -52,6 +52,7 @@ class AD9834(AD98xx):
 
 
     def enable_comparator(self, value = True):
+        self._action = 'enable_comparator {}'.format(value)
         if value:
             self.control_register.elements['OPBITEN'].value = 1
             self.control_register.elements['Mode'].value = 0
@@ -69,11 +70,13 @@ class AD9834(AD98xx):
 
 
     def enable_pin_control(self, value = True):
+        self._action = 'enable_pin_control {}'.format(value)
         self.control_register.elements['PIN_SW'].value = int(bool(value))
         self._update_control_register()
 
 
     def enable_output(self, value = True):
+        self._action = 'enable_output {}'.format(value)
         if self.pin_control_enabled:
             _ = self.pin_reset.low() if value else self.pin_reset.high()
 
@@ -82,6 +85,7 @@ class AD9834(AD98xx):
 
 
     def select_freq_source(self, idx):
+        self._action = 'select_freq_source {}'.format(idx)
         if self.pin_control_enabled:
             _ = self.pin_fselect.low() if (idx & 0x1 == 0) else self.pin_fselect.high()
 
@@ -90,6 +94,7 @@ class AD9834(AD98xx):
 
 
     def select_phase_source(self, idx):
+        self._action = 'select_phase_source {}'.format(idx)
         if self.pin_control_enabled:
             _ = self.pin_pselect.low() if (idx & 0x1 == 0) else self.pin_pselect.high()
 
