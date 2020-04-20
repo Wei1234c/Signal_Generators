@@ -4,7 +4,7 @@ try:
     from signal_generators import tools
     from signal_generators.ad98xx import ad9833
 except:
-    import adapters
+    import peripherals
     import modulators
     import tools
     import ad9833

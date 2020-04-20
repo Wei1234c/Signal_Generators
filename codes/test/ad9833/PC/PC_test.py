@@ -6,7 +6,7 @@ from signal_generators.ad98xx.ad9833 import *
 peripherals.SPI.DEBUG_MODE = False  # whether to show SPI written data.
 AD9833.DEBUG_MODE = False  # whether to print registers.
 
-with_hardware_device = True
+with_hardware_device = False
 
 if with_hardware_device:
     _clk = peripherals.Pin.get_Ftdi_pin(pin_id = 4)
