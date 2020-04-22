@@ -208,17 +208,13 @@ class AD98xx(Device):
         self.start()
 
 
-    def _update_register(self, register, reset = False):
-        if reset:
-            register.reset()
-
-        self._show_bus_data(register.bytes, address = register.address)
-        self._spi.write(register.bytes)
-        self._print_register(register)
+    def _write_register(self, register, reset = False):
+        super()._write_register(register, reset = reset)
+        return self._spi.write(register.bytes)
 
 
     def _update_control_register(self, reset = False):
-        self._update_register(self.control_register, reset = reset)
+        self._write_register(self.control_register, reset = reset)
 
 
     def _update_frequency_register(self, register, reset = False):
@@ -236,21 +232,11 @@ class AD98xx(Device):
         self._print_register(register)
 
 
-    def _update_all_registers(self, reset = False):
+    def write_all_registers(self, reset = False):
         self._update_control_register(reset = reset)
         for i in range(self.REGISTERS_COUNT):
             self._update_frequency_register(self.frequency_registers[i], reset = reset)
-            self._update_register(self.phase_registers[i], reset = reset)
-
-
-    def update(self):
-        self._action = 'update'
-        self._update_all_registers(reset = False)
-
-
-    def reset(self):
-        self._action = 'reset'
-        self._update_all_registers(reset = True)
+            self._write_register(self.phase_registers[i], reset = reset)
 
 
     def print(self, as_hex = False):
@@ -289,7 +275,7 @@ class AD98xx(Device):
 
         phase_reg = self.phase_registers[idx]
         phase_reg.phase = phase
-        self._update_register(phase_reg)
+        self._write_register(phase_reg)
 
 
     def select_freq_source(self, idx):
@@ -355,7 +341,7 @@ class AD98xx(Device):
         self.shape = shape
 
 
-    def enable(self, value):
+    def enable(self, value = True):
         self._action = 'enable {}'.format(value)
         self._enabled = value
         if value:

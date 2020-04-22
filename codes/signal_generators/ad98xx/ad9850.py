@@ -114,18 +114,11 @@ class AD9850(AD98xx):
         self.start()
 
 
-    def _update_register(self, register, reset = False):
-        if reset:
-            register.reset()
-        self._show_bus_data(register.bytes, address = register.address)
-        self._spi.write(register.bytes)
-        self._print_register(register)
-
     def _update_frequency_register(self, register, reset = False):
         raise NotImplementedError()
 
 
-    def _update_all_registers(self, reset = False):
+    def write_all_registers(self, reset = False):
         self._update_control_register(reset = reset)
 
 
@@ -203,12 +196,14 @@ class AD9850(AD98xx):
         self._action = 'set shape {}'.format(shape)
         self._shape = shape
 
+
     def reset(self):
         self._action = 'reset'
         if self.pin_reset is not None:
             self.pin_reset.high()
             self.pin_reset.low()
         super().reset()
+
 
     def enable_output(self, value = True):
         self._action = 'enable_output {}'.format(value)

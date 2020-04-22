@@ -138,25 +138,13 @@ When power-down is activated, the following events occur:
 
 
 def _get_registers_map():
-    raw_registers = _get_all_raw_registers()
+    regs_map = RegistersMap(name = 'Si5351', description = 'Si5351 registers.', registers = _get_all_raw_registers())
 
-    names = [reg.name for reg in raw_registers]
-    duplicated_names = list((n for n in set(names) if names.count(n) > 1))
+    regs_map.elements['Phase_Value']['element'].value = 1
 
-    for reg in raw_registers:
-        if reg.name in duplicated_names:
-            reg.name = '{}_{}'.format(reg.name, reg.address)
-
-    regs_map = RegistersMap(name = 'Si5351', description = 'Si5351 registers.', registers = raw_registers)
-
-    reg = regs_map.registers['Crystal_Internal_Load_Capacitance']
-    reg.elements['Reserved_0'].read_only = False
-    reg.default_value = 0xD2
-    reg.reset()
-    reg.elements['Reserved_0'].read_only = True
-
-    element = regs_map.elements['SS_NCLK']['element']
-    element.value = 0
-    element.read_only = True
+    for reg in regs_map._registers:
+        ele = reg.elements['index']
+        ele.value = reg.address
+        ele.read_only = True
 
     return regs_map

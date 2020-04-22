@@ -13,13 +13,16 @@ SHAPE_DEFAULT = 'sine'
 
 
 class Device:
-    REGISTERS_COUNT = 0
     DEBUG_MODE = False
     DEBUG_MODE_SHOW_BUS_DATA = DEBUG_MODE
     DEBUG_MODE_PRINT_REGISTER = DEBUG_MODE
 
+    FREQ_REF = None
+    N_OUTPUT_CLOCKS = None
+
 
     def __init__(self, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
+                 registers_map = None, registers_values = None,
                  commands = None):
         self._frequency = freq
         self.freq_correction = freq_correction
@@ -27,6 +30,11 @@ class Device:
         self._shape = shape
         self._enabled = False
         self._action = ''
+
+        self.map = registers_map
+        if registers_values is not None:
+            self.load_registers(registers_values)  # addressed registers values
+
         self.do(commands)
 
 
@@ -59,13 +67,21 @@ class Device:
 
 
     @property
-    def freq_resolution(self):
+    def is_virtual_device(self):
         raise NotImplementedError()
-
 
     @property
-    def phase_resolution(self):
+    def status(self):
         raise NotImplementedError()
+
+
+    def load_registers(self, addressed_values):
+        self._action = 'load_registers_values'
+        self.map.load_values(addressed_values)
+
+    @property
+    def registers_values(self):
+        return self.map.addressed_values
 
 
     @property
@@ -78,7 +94,27 @@ class Device:
         self._frequency = frequency
 
 
+    @property
+    def freq_resolution(self):
+        raise NotImplementedError()
+
+
+    @property
+    def phase_resolution(self):
+        raise NotImplementedError()
+
+
+    def apply_signal(self, freq = None, freq_correction = None, phase = None, shape = None):
+        raise NotImplementedError()
+
+
     def set_frequency(self, freq, idx = None, freq_correction = None):
+        self._action = 'set_frequency {} idx {}'.format(freq, idx)
+        raise NotImplementedError()
+
+
+    def set_phase(self, phase, idx = None):
+        self._action = 'set_phase {} idx {}'.format(phase, idx)
         raise NotImplementedError()
 
 
@@ -86,16 +122,12 @@ class Device:
         raise NotImplementedError()
 
 
+    def select_phase_source(self, idx):
+        raise NotImplementedError()
+
+
     @property
     def current_frequency(self):
-        raise NotImplementedError()
-
-
-    def set_phase(self, phase, idx = None):
-        raise NotImplementedError()
-
-
-    def select_phase_source(self, idx):
         raise NotImplementedError()
 
 
@@ -114,57 +146,70 @@ class Device:
         self._shape = shape
 
 
-    def apply_signal(self, freq = None, freq_correction = None, phase = None, shape = None):
-        raise NotImplementedError()
-
-
     @property
     def enabled(self):
         return self._enabled
 
 
-    def enable(self, value):
-        raise NotImplementedError()
+    def enable(self, value = True):
+        self._action = 'enable {}'.format(value)
+        self._enabled = value
+        self.enable_output(value)
 
 
     def enable_output(self, value = True):
+        self._action = 'enable_output: {}'.format(value)
+        raise NotImplementedError()
+
+
+    def enable_output_channel(self, idx, value = True):
+        self._action = 'enable_output_channel: {} {}'.format(idx, value)
         raise NotImplementedError()
 
 
     def init(self):
-        raise NotImplementedError()
-
-
-    def reset(self):
+        self._action = 'init'
         raise NotImplementedError()
 
 
     def start(self):
-        raise NotImplementedError()
+        self._action = 'start'
+        self.enable(True)
 
 
     def pause(self):
-        raise NotImplementedError()
+        self._action = 'pause'
+        self.enable(False)
 
 
     def resume(self):
-        raise NotImplementedError()
+        self._action = 'resume'
+        self.enable(True)
 
 
     def stop(self):
-        raise NotImplementedError()
+        self._action = 'stop'
+        self.pause()
 
 
     def close(self):
-        raise NotImplementedError()
+        self._action = 'close'
+        self.stop()
 
 
     def update(self):
-        raise NotImplementedError()
+        self._action = 'update'
+        self.write_all_registers(reset = False)
 
 
-    def print(self):
-        raise NotImplementedError()
+    def reset(self):
+        self._action = 'reset'
+        self.write_all_registers(reset = True)
+
+
+    def print(self, as_hex = False):
+        self._action = 'print'
+        self.map.print(as_hex)
 
 
     def _show_bus_data(self, bytes_array, address = None, reading = False):
@@ -178,3 +223,72 @@ class Device:
     def _print_register(self, register):
         if self.DEBUG_MODE_PRINT_REGISTER:
             register.print()
+
+
+    # =================================================================
+
+    def _write_register(self, register, reset = False):
+        if reset:
+            register.reset()
+        self._show_bus_data(register.bytes, address = register.address)
+        self._print_register(register)
+
+
+    def _load_n_write_register(self, register, value):
+        register.load_value(value)
+        self._write_register(register)
+        return register
+
+
+    def _write_register_by_name(self, register_name, value):
+        reg = self.map.registers[register_name]
+        return self._load_n_write_register(reg, value)
+
+
+    def _write_register_by_address(self, register_address, value):
+        reg = self.map.registers_by_address[register_address]
+        return self._load_n_write_register(reg, value)
+
+
+    def _write_element_by_name(self, element_name, value):
+        d = self.map.elements[element_name]
+        reg, element = d['register'], d['element']
+        element.value = value
+        self._write_register(reg)
+        return reg
+
+
+    def write_all_registers(self, reset = False):
+        for reg in self.map._registers:
+            self._write_register(reg, reset = reset)
+
+
+    def _read_register(self, register):
+        raise NotImplementedError()
+
+
+    def _read_n_load_register(self, register):
+        register.load_value(self._read_register(register))
+        return register
+
+
+    def _read_register_by_name(self, register_name):
+        reg = self.map.registers[register_name]
+        return self._read_n_load_register(reg)
+
+
+    def _read_register_by_address(self, register_address):
+        reg = self.map.registers_by_address[register_address]
+        return self._read_n_load_register(reg)
+
+
+    def read_all_registers(self):
+        for reg in self.map._registers:
+            self._read_n_load_register(reg)
+        return self.map.address_name_values
+
+
+    def _read_element_by_name(self, element_name):
+        reg = self.map.elements[element_name]['register']
+        self._read_n_load_register(reg)
+        return reg.elements[element_name]

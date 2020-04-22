@@ -76,35 +76,25 @@ class AD9834(AD98xx):
 
 
     def enable_output(self, value = True):
-        self._action = 'enable_output {}'.format(value)
         if self.pin_control_enabled:
             _ = self.pin_reset.low() if value else self.pin_reset.high()
-
-        self.control_register.elements['Reset'].value = int(not bool(value))
-        self._update_control_register()
+        super().enable_output(value)
 
 
     def select_freq_source(self, idx):
-        self._action = 'select_freq_source {}'.format(idx)
         if self.pin_control_enabled:
             _ = self.pin_fselect.low() if (idx & 0x1 == 0) else self.pin_fselect.high()
-
-        self.control_register.elements['FSELECT'].value = idx & 0x1
-        self._update_control_register()
+        super().select_freq_source(idx)
 
 
     def select_phase_source(self, idx):
-        self._action = 'select_phase_source {}'.format(idx)
         if self.pin_control_enabled:
             _ = self.pin_pselect.low() if (idx & 0x1 == 0) else self.pin_pselect.high()
+        super().select_phase_source(idx)
 
-        self.control_register.elements['PSELECT'].value = idx
-        self._update_control_register()
 
 
     def _enable_DAC(self, value = True):
         if self.pin_control_enabled:
             _ = self.pin_sleep.low() if value else self.pin_sleep.high()
-
-        self.control_register.elements['SLEEP12'].value = int(not bool(value))
-        self._update_control_register()
+        super()._enable_DAC(value)
