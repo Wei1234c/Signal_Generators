@@ -282,8 +282,6 @@ class IQ(MultipleChannels):
     # PHASE_10 = 315
     PHASES = {3: 45, 1: 135, 0: 225, 2: 315}
     SYMBOLS = list(PHASES.keys())
-    MASK_I = 2
-    MASK_Q = 1
     ON = 3
     OFF = 0
     IDX_I = 0
@@ -308,8 +306,8 @@ class IQ(MultipleChannels):
 
 
     def _process_symbol(self, symbol):
-        self._devices[self.IDX_I].select_phase_source(idx = symbol & self.MASK_I)
-        self._devices[self.IDX_Q].select_phase_source(idx = symbol & self.MASK_Q)
+        self._devices[self.IDX_I].select_phase_source(idx = (symbol >> 1) & 0x01)
+        self._devices[self.IDX_Q].select_phase_source(idx = (symbol >> 0) & 0x01)
 
 
 

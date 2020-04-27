@@ -52,7 +52,6 @@ class ADF435x(Device):
             self.denominator_max = self.DENOMINATOR_MAX
             self._set_divider(self.DIVIDER_DEFAULT)
             self.set_input_source(source)
-            # self.set_input_source()  # need implement
 
 
         @property
@@ -296,18 +295,24 @@ class ADF435x(Device):
         # constant.
 
         DIVIDERS = [2 ** i for i in range(7)]
+        DIVIDER_CODES = {2 ** i: i for i in range(7)}
+
         DIVIDER_MIN = min(DIVIDERS)
         DIVIDER_MAX = max(DIVIDERS)
         DIVIDER_DEFAULT = DIVIDER_MAX
-        DIVIDER_CODES = {d: int(math.log(d, 2)) for d in DIVIDERS}
 
 
         def _set_parameters(self, divider):
             self._adf._write_element_by_name('RF_Divider_Select', self.DIVIDER_CODES[divider])
 
 
-    class _2_Divider(_R_Counter):
-
+    class _ReferenceDivider(_R_Counter):
+        # The reference divide-by-2 divides the reference signal by 2,
+        # resulting in a 50% duty cycle PFD frequency. This is necessary
+        # for the correct operation of the cycle slip reduction (CSR)
+        # function. For more information, see the Cycle Slip Reduction
+        # for Faster Lock Times section.
+        
         DENOMINATOR_MAX = None
 
         DIVIDERS = (1, 2)
@@ -316,8 +321,15 @@ class ADF435x(Device):
         DIVIDER_DEFAULT = DIVIDER_MIN
 
 
-    class _Doubler(_2_Divider):
-
+    class _ReferenceDoubler(_ReferenceDivider):
+        # The on-chip reference doubler allows the input reference signal
+        # to be doubled. Doubling the reference signal doubles the PFD
+        # comparison frequency, which improves the noise performance of
+        # the system. Doubling the PFD frequency usually improves noise
+        # performance by 3 dB. Note that in fractional-N mode, the PFD
+        # cannot operate above 32 MHz due to a limitation in the speed
+        # of the Σ-Δ circuit of the N divider. For integer-N applications,
+        # the PFD can operate up to 90 MHz.
         @property
         def freq(self):
             return math.floor(self.source.freq * self.divider)
@@ -326,21 +338,29 @@ class ADF435x(Device):
     class _N_Divider(_DividerBase):
 
         INT_BITS = 16
+        INT_MIN = {'4/5': 23, '8/9': 75}
         INT_MAX = 2 ** INT_BITS - 1
-        PRESCALER_INT_MINS = {'4/5': 23, '8/9': 75}
-
-        FRAC_BITS = 12
-        FRAC_MAX = 2 ** FRAC_BITS - 1
 
         MOD_BITS = 12
+        MOD_MIN = 2
         MOD_MAX = 2 ** MOD_BITS - 1
 
+        FRAC_BITS = 12
+        FRAC_MIN = 0
+        FRAC_MAX = MOD_MAX - 1
+
         DIVIDER_MIN = None
-        DIVIDER_MAX = INT_MAX + 1 - 1 / MOD_MAX
+        DIVIDER_MAX = INT_MAX + FRAC_MAX / MOD_MAX
         DIVIDER_DEFAULT = INT_MAX
 
         DENOMINATOR_BITS = MOD_BITS
         DENOMINATOR_MAX = MOD_MAX
+
+        #
+        # B. Note that in fractional-N mode, the PFD
+        # cannot operate above 32 MHz due to a limitation in the speed
+        # of the Σ-Δ circuit of the N divider. For integer-N applications,
+        # the PFD can operate up to 90 MHz.
 
 
         def _validate_divider(self, divider):
@@ -392,7 +412,22 @@ class ADF435x(Device):
             # If FRAC = 0 and the DB8 (LDF) bit in Register 2 is set to 1, the
             # synthesizer operates in integer-N mode. The DB8 bit in Register 2
             # should be set to 1 for integer-N digital lock detect.
+
+            # The PFD includes a programmable delay element that sets the
+            # width of the antibacklash pulse (ABP). This pulse ensures that
+            # there is no dead zone in the PFD transfer function. Bit DB22 in
+            # Register 3 (R3) is used to set the ABP as follows:
+            #  When Bit DB22 is set to 0, the ABP width is programmed to
+            # 6 ns, the recommended value for fractional-N applications.
+            #  When Bit DB22 is set to 1, the ABP width is programmed to
+            # 3 ns, the recommended value for integer-N applications.
+            # For integer-N applications, the in-band phase noise is improved
+            # by enabling the shorter pulse width. The PFD frequency can
+            # operate up to 90 MHz in this mode. To operate with PFD
+            # frequencies higher than 45 MHz, VCO band select must be disabled by setting the phase adjust bit (DB28) to 1 in Register 1.
+
             self._adf._write_element_by_name('LDF', int(bool(value)))
+            self._adf.phase_detector.set_width_of_antibacklash_pulse(self, width = '3ns' if value else '6ns')
 
 
         @property
@@ -456,13 +491,17 @@ class ADF435x(Device):
         # by enabling the shorter pulse width. The PFD frequency can
         # operate up to 90 MHz in this mode. To operate with PFD
         # frequencies higher than 45 MHz, VCO band select must be disabled by setting the phase adjust bit (DB28) to 1 in Register 1.
-
+        #  =====================================================================================
         ABP_WIDTH = {'6ns': 0,  # for fractional-N applications.
                      '3ns': 1}  # for integer-N applications}
 
         FREQUENCY_PFD_MAX = int(90e6)
         FREQUENCY_PFD_MAX_HALF = FREQUENCY_PFD_MAX / 2
 
+        # B. Note that in fractional-N mode, the PFD
+        # cannot operate above 32 MHz due to a limitation in the speed
+        # of the Σ-Δ circuit of the N divider. For integer-N applications,
+        # the PFD can operate up to 90 MHz.
 
         def __init__(self, adf: Device, n_divider, r_counter):
             self._adf = adf
@@ -577,6 +616,8 @@ class ADF435x(Device):
         # using narrow-band designs.
         BAND_SELECT_CLOCK_MODES = {'LOW': 0, 'HIGH': 1}
 
+        # Note that the ADF4351 VCO operates in the frequency range
+        # of 2.2 GHz to 4.4 GHz. 
 
         def __init__(self, adf):
             self._adf = adf
@@ -667,13 +708,8 @@ class ADF435x(Device):
 
 
     class _AuxOutput(_RF_Output):
+        pass
 
-
-    # An auxiliary output stage exists on the RFOUTB+ and RFOUTB−
-    # pins, providing a second set of differential outputs that can be
-    # used to drive another circuit. The auxiliary output stage can be
-    # used only if the primary outputs are enabled. If the auxiliary
-    # output stage is not used, it can be powered down.
 
     def __init__(self, spi, ss, ss_polarity = 1,
                  freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
@@ -696,11 +732,10 @@ class ADF435x(Device):
         # (R4) is also double buffered, but only if the DB13 bit of
         # Register 2 (R2) is set to 1.
 
-        self._adf._write_element_by_name('Double_Buffer', int(bool(value)))
+        self._write_element_by_name('Double_Buffer', int(bool(value)))
 
 
-    def init(self):
-        self._action = 'init'
+    def _build(self):
 
         # internal components
         self.mclk = self._ReferenceInput(self, self.freq_mclk)
@@ -719,6 +754,12 @@ class ADF435x(Device):
         self.spread_spectrum = self._SpreadSpectrum(self)  # PLL_A as source
         if self.HAS_VCXO:
             self.vcxo = self._VCXO(self)  # PLL_B as source, changes PLL_B's denominator(P3) if used.
+
+
+    def init(self):
+        self._action = 'init'
+
+        self._build()
 
         self.reset_plls()
         self.start()
