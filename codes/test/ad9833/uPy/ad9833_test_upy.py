@@ -14,11 +14,14 @@ except:
 
 gc.collect()
 
+with_hardware_device = True
 
-## Generators
-_spi = peripherals.SPI.get_uPy_spi(polarity = 1)
-_ss1 = peripherals.Pin.get_uPy_pin(15, output = True)
-_ss2 = peripherals.Pin.get_uPy_pin(4, output = True)
+if with_hardware_device:
+    _spi = peripherals.SPI.get_uPy_spi(polarity = 1)
+    _ss1 = peripherals.Pin.get_uPy_pin(15, output = True)
+    _ss2 = peripherals.Pin.get_uPy_pin(4, output = True)
+else:
+    _spi = _ss1 = _ss2 = None  # using None for testing without actual hardware device.
 
 ad1 = ad9833.AD9833(_spi, _ss1)
 ad2 = ad9833.AD9833(_spi, _ss2)
