@@ -45,7 +45,7 @@ def _freq_trim(n):
 
 class ADF4351(Device):
     FREQ_MCLK = int(25e6)
-    INITIAL_REGISTERS_VALUES = (0x3C0020, 0x80087D1, 0x3004FC2, 0x6004B3, 0x9C803C, 0x580005)
+    INITIAL_REGISTERS_VALUES = (0x3C0000, 0x80087D1, 0x30041C2, 0xE404B3, 0x932224, 0X580005)
 
 
     class _DividerBase:
@@ -237,7 +237,6 @@ class ADF4351(Device):
             assert self.FREQ_MIN <= self._freq <= self.FREQ_MAX, \
                 'freq_ref ranges between {:0.1e} ~ {:0.1e} Hz, now is {:0.1e} Hz'.format(self.FREQ_MIN, self.FREQ_MAX,
                                                                                          self._freq)
-
             return self._freq
 
 
@@ -374,7 +373,7 @@ class ADF4351(Device):
 
         # BAND_SELECT_TIME = {'LOW': 8e-6, 'HIGH': 2e-6}
 
-        def __init__(self, adf, source, mode = 'LOW'):
+        def __init__(self, adf, source, mode = 'HIGH'):
             self._adf = adf
             self._set_mode(mode)
             super().__init__(adf, source)
@@ -591,7 +590,7 @@ class ADF4351(Device):
 
 
         def __init__(self, adf, source,
-                     CSR_enabled = False, LD_pin_mode = 'DIGITAL_LOCK_DETECT', polarity_non_inverting = True):
+                     CSR_enabled = True, LD_pin_mode = 'DIGITAL_LOCK_DETECT', polarity_non_inverting = True):
 
             self._feedback_source = None
             super().__init__(adf, source)
@@ -796,7 +795,7 @@ class ADF4351(Device):
 
         FREQ_MIN = 2.2e9
         FREQ_MAX = 4.4e9
-        FREQ_DEFAULT = 4.4e9
+        FREQ_DEFAULT = 3.0e9
 
 
         def __init__(self, adf, source):
@@ -854,7 +853,7 @@ class ADF4351(Device):
 
         DIVIDERS = [2 ** i for i in range(7)]
         DIVIDER_CODES = {2 ** i: i for i in range(7)}
-        DIVIDER_DEFAULT = 1  # problematic if default as 64, and switch N-divider's source from VCO to RF_divider.
+        DIVIDER_DEFAULT = 2  # problematic if default as 64, and switch N-divider's source from VCO to RF_divider.
 
 
         def __init__(self, adf, source, double_buffered = False):
@@ -905,8 +904,9 @@ class ADF4351(Device):
         # feature is enabled by setting the mute till lock detect (MTLD)
         # bit in Register 4 (R4).
 
-        POWER_DBM_LEVELS = {-4: 0, -1: 1, 2: 2, 5: 3}
         CHANNEL_RESOLUTION_DEFAULT = 100e3
+        POWER_DBM_LEVELS = {-4: 0, -1: 1, 2: 2, 5: 3}
+        POWER_DBM_LEVELS_value_key = _value_key(POWER_DBM_LEVELS)
 
 
         def __init__(self, adf, source,
@@ -933,6 +933,11 @@ class ADF4351(Device):
             self._adf._write_element_by_name('RF_Output_Enable', int(bool(value)))
 
 
+        @property
+        def dBm(self):
+            return self.POWER_DBM_LEVELS_value_key[self._adf.map.value_of_element('Output_Power')]
+
+
         def set_output_power(self, dBm = -4):
             # Bits[DB4:DB3] set the value of the primary RF output power level (see Figure 28).
             valids = self.POWER_DBM_LEVELS.keys()
@@ -948,6 +953,7 @@ class ADF4351(Device):
 
         def set_frequency(self, freq, channel_resolution = None, rf_divider_as = None):
             channel_resolution = self.channel_resolution if channel_resolution is None else channel_resolution
+            self._adf._register_write_enabled = False
 
             for d in sorted(self.rf_divider.DIVIDERS, reverse = True) if rf_divider_as is None else (rf_divider_as,):
                 try:
@@ -956,13 +962,17 @@ class ADF4351(Device):
                     self._adf.rf_n_divider._set_channel_resolution(channel_resolution)
                     self._adf.vco.set_frequency(freq_vco)
                     _ = self.freq  # validate
+
+                    self._adf.write_all_registers()
                     return True
 
                 except AssertionError as e:
-                    print(e)
-                    err_msg = 'Failed in setting RF_out as {} Hz = {} Hz / {} (freq_vco / rf_divider).'
-                    print(err_msg.format(freq, freq_vco, d))
+                    if self._adf.DEBUG_MODE:
+                        print(e)
+                        err_msg = 'Failed in setting RF_out as {} Hz = {} Hz / {} (freq_vco / rf_divider).'
+                        print(err_msg.format(freq, freq_vco, d))
 
+            self._adf._register_write_enabled = True
             raise ValueError('Failed in setting frequency as {}.'.format(freq))
 
 
@@ -970,6 +980,7 @@ class ADF4351(Device):
 
         SOURCES = {'DIVIDED_OUTPUT': 0, 'FUNDAMENTAL': 1}
         POWER_DBM_LEVELS = {-4: 0, -1: 1, 2: 2, 5: 3}
+        POWER_DBM_LEVELS_value_key = _value_key(POWER_DBM_LEVELS)
 
 
         def __init__(self, adf, source = 'FUNDAMENTAL', output_power_dBm = -4, enable = False):
@@ -996,6 +1007,11 @@ class ADF4351(Device):
             # RF output is disabled; if DB8 is set to 1, the auxiliary RF output is enabled.
 
             self._adf._write_element_by_name('AUX_Output_Enable', int(bool(value)))
+
+
+        @property
+        def dBm(self):
+            return self.POWER_DBM_LEVELS_value_key[self._adf.map.value_of_element('AUX_Output_Power')]
 
 
         def set_output_power(self, dBm = -4):
@@ -1095,7 +1111,7 @@ class ADF4351(Device):
 
         DIVIDER_MIN = None
         DIVIDER_MAX = INT_MAX + FRAC_MAX / MOD_MAX
-        DIVIDER_DEFAULT = 176
+        DIVIDER_DEFAULT = 120
 
         DENOMINATOR_BITS = MOD_BITS
         DENOMINATOR_MAX = MOD_MAX
@@ -1104,8 +1120,6 @@ class ADF4351(Device):
 
 
         def __init__(self, adf, vco_as_source = True):
-            # self._adf = adf
-            # self._set_feedback_source(vco_as_source)
             super().__init__(adf, vco_as_source)
 
 
@@ -1118,6 +1132,29 @@ class ADF4351(Device):
                                 'divider_equivalent': self.divider_equivalent,
                                 'is_integer'        : self.is_in_integer_mode,
                                 'my_freq'           : self.freq})
+
+
+        @property
+        def vco_as_source(self):
+            return self._adf.map.value_of_element('Feedback_Select') == 1
+
+
+        def _set_input_source(self, vco_as_source):
+            # The DB23 bit selects the feedback from the VCO output to the N counter.
+            # When this bit is set to 1, the signal is taken directly from the VCO.
+            # When this bit is set to 0, the signal is taken from the output of the output dividers.
+            # The dividers enable coverage of the wide frequency band (34.375 MHz to 4.4 GHz).
+            # When the dividers are enabled and the feedback signal is taken from the output,
+            # the RF output signals of two separately configured PLLs are in phase.
+            # This is useful in some applications where the positive interference of
+            # signals is required to increase the power.
+
+            self._adf._write_element_by_name('Feedback_Select', int(bool(vco_as_source)))
+
+            self._source = self._adf.vco if vco_as_source else self._adf.rf_divider
+
+            self._synch_freq_pfd()  # set divider so my freq == freq_pfd.
+            _ = self.freq  # validate freq
 
 
         @property
@@ -1138,7 +1175,7 @@ class ADF4351(Device):
 
         @property
         def freq_resolution(self):
-            return self._adf.freq_pfd / self.MOD / self._adf.rf_divider.divider
+            return self._adf.freq_pfd / self.MOD
 
 
         def _synch_freq_pfd(self):
@@ -1146,8 +1183,24 @@ class ADF4351(Device):
 
 
         @property
+        def INT(self):
+            return self._adf.map.value_of_element('INT')
+
+
+        @property
+        def FRAC(self):
+            return self._adf.map.value_of_element('FRAC')
+
+
+        @property
         def MOD(self):
             return self._adf.map.value_of_element('MOD')
+
+
+        def step(self, steps):
+            d, m = divmod(self.FRAC + steps, self.MOD)
+            self._adf._write_element_by_name('INT', self.INT + d)
+            self._adf._write_element_by_name('FRAC', m)
 
 
         def _set_channel_resolution(self, resolution = None):
@@ -1155,6 +1208,26 @@ class ADF4351(Device):
                 self._denominator = self.DENOMINATOR_MAX
             else:
                 self._denominator = math.ceil(self._adf.freq_pfd / resolution)
+
+            self._adf._write_element_by_name('MOD', self._denominator)
+            self._adf._confirm_double_buffer()
+
+
+        @property
+        def is_in_integer_mode(self):
+            return self._adf.map.value_of_element('LDF') == 1
+
+
+        @property
+        def divider(self):
+            return self.INT + self.FRAC / self.MOD
+
+
+        def _set_divider(self, divider):
+            super()._set_divider(divider)
+            self._adf.vco._set_divider(self.divider_equivalent)  # re-assign VCO's divider.
+            self._adf.band_select_clock_divider._refresh_divider()
+            return True
 
 
         def _set_parameters(self, a, b, c):
@@ -1256,23 +1329,6 @@ class ADF4351(Device):
 
 
         @property
-        def is_in_integer_mode(self):
-            return self._adf.map.value_of_element('LDF') == 1
-
-
-        @property
-        def divider(self):
-            return self._divider
-
-
-        def _set_divider(self, divider):
-            super()._set_divider(divider)
-            self._adf.vco._set_divider(self.divider_equivalent)  # re-assign VCO's divider.
-            self._adf.band_select_clock_divider._refresh_divider()
-            return True
-
-
-        @property
         def divider_equivalent(self):
             return self.divider * (1 if self.vco_as_source else self._adf.rf_divider.divider)
 
@@ -1282,29 +1338,6 @@ class ADF4351(Device):
             self._set_divider(self.divider * ratio)
 
 
-        def _set_input_source(self, vco_as_source):
-            # The DB23 bit selects the feedback from the VCO output to the N counter.
-            # When this bit is set to 1, the signal is taken directly from the VCO.
-            # When this bit is set to 0, the signal is taken from the output of the output dividers.
-            # The dividers enable coverage of the wide frequency band (34.375 MHz to 4.4 GHz).
-            # When the dividers are enabled and the feedback signal is taken from the output,
-            # the RF output signals of two separately configured PLLs are in phase.
-            # This is useful in some applications where the positive interference of
-            # signals is required to increase the power.
-
-            self._adf._write_element_by_name('Feedback_Select', int(bool(vco_as_source)))
-
-            self._source = self._adf.vco if vco_as_source else self._adf.rf_divider
-
-            self._synch_freq_pfd()  # set divider so my freq == freq_pfd.
-            _ = self.freq  # validate freq
-
-
-        @property
-        def vco_as_source(self):
-            return self._adf.map.value_of_element('Feedback_Select') == 1
-
-
     class _Phaser(_IntegerDivider):
         DIVIDER_BITS = 12
         DIVIDER_DEFAULT = 1
@@ -1312,8 +1345,7 @@ class ADF4351(Device):
 
         def __init__(self, adf, source, phase_adjust = False):
             super().__init__(adf, source)
-            # # self._divider_min = 0
-            self.set_phase(1)
+            self._divider_min = 0
             self._enable_phase_adjust(phase_adjust)
 
 
@@ -1499,7 +1531,7 @@ class ADF4351(Device):
         CHARGE_PUMP_CURRENTS_value_key = _value_key(CHARGE_PUMP_CURRENTS)
 
 
-        def __init__(self, adf, current_mA = 2.5, three_state = False):
+        def __init__(self, adf, current_mA = 0.31, three_state = False):
             self._adf = adf
             self._set_current(current_mA)
             self._enable_three_state(three_state)
@@ -1572,22 +1604,22 @@ class ADF4351(Device):
         self.init()
 
 
-    def init(self):
-        self._action = 'init'
-        # self.map.reset()
-
+    def reset(self):
+        self._action = 'reset'
         self.map.load_values(enumerate(self.INITIAL_REGISTERS_VALUES))
         self.write_all_registers()
-        print([r.value for r in self.map._registers])
+
+
+    def init(self):
+        self._action = 'init'
+        self.map.reset()
+
+        # self.map.load_values(enumerate(self.INITIAL_REGISTERS_VALUES))
+        # self.write_all_registers()
 
         self._build()
         self.write_all_registers()
-        print([r.value for r in self.map._registers])
 
-        # self.enable(False)
-        # self._power_down(True)
-        #
-        # self._power_down(False)
         self.start()
 
 
@@ -1730,6 +1762,8 @@ class ADF4351(Device):
                                 rf_divider_as = None,
                                 torance_hz = 1):
 
+        self._register_write_enabled = False
+
         results = []
 
         self.mclk.set_frequency(freq_ref)
@@ -1761,6 +1795,8 @@ class ADF4351(Device):
                                 results.append(match)
                         except:
                             pass
+
+            self.init()
 
         return sorted(results)
 
@@ -1802,7 +1838,6 @@ class ADF4351(Device):
 
 
     # =================================================================
-
 
     def _write_register(self, register, reset = False):
         if self._register_write_enabled:
