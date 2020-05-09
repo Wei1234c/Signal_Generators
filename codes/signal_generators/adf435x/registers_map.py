@@ -181,7 +181,17 @@ When power-down is activated, the following events occur:
 def _get_registers_map():
     regs_map = RegistersMap(name = 'ADF4351', description = 'ADF4351 registers.', registers = _get_all_registers())
 
-    regs_map.elements['Phase_Value']['element'].value = 1
+    reg = regs_map.registers['REGISTER_4']
+    reg.elements['Feedback_Select'].value = 1
+    reg.default_value = reg.value
+
+
+    reg = regs_map.registers['REGISTER_5']
+    element = reg.elements['Reserved_19']
+    element.read_only = False
+    element.value = 3
+    element.read_only = True
+    reg.default_value = reg.value
 
     for reg in regs_map._registers:
         ele = reg.elements['Index']
