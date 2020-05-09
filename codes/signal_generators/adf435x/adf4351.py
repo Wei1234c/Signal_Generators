@@ -1606,16 +1606,11 @@ class ADF4351(Device):
 
     def reset(self):
         self._action = 'reset'
-        self.map.load_values(enumerate(self.INITIAL_REGISTERS_VALUES))
-        self.write_all_registers()
+        self.init()
 
 
     def init(self):
         self._action = 'init'
-        self.map.reset()
-
-        # self.map.load_values(enumerate(self.INITIAL_REGISTERS_VALUES))
-        # self.write_all_registers()
 
         self._build()
         self.write_all_registers()

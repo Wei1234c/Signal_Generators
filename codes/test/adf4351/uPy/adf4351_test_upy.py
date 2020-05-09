@@ -3,6 +3,7 @@ try:
     from utilities.adapters import peripherals
 except:
     from adf4351 import ADF4351
+    import peripherals
     import gc
 
 
@@ -14,15 +15,16 @@ except:
 with_hardware_device = True
 
 if with_hardware_device:
-    _spi = peripherals.SPI.get_uPy_spi(polarity = 1)
+    _spi = peripherals.SPI.get_uPy_spi(polarity = 0)
     _ss = peripherals.Pin.get_uPy_pin(15, output = True)
 else:
     _spi = _ss = None  # using None for testing without actual hardware device.
 
-adf = ADF4351(_spi, _ss)  # , freq_mclk = 13e6)
+adf = ADF4351(_spi, _ss)
 
 # adf.set_frequency(35e6)
-adf.set_frequency(4.4e9, channel_resolution = 100e3, rf_divider_as = None)
-print(adf.freq_resolution)
+adf.set_frequency(1.5e9, channel_resolution = 100e3, rf_divider_as = None)
 
+print(adf.current_dividers)
+print(adf.registers_values)
 print(adf.status)
