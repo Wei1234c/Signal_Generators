@@ -3,7 +3,6 @@ try:
     from utilities.adapters import peripherals
 except:
     from adf4351 import ADF4351
-    import peripherals
     import gc
 
 

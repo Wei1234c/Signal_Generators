@@ -4,12 +4,10 @@
 try:
     from collections import OrderedDict
     from ..interfaces import *
-    from utilities.adapters.peripherals import SPI
     from .registers_map import _get_registers_map, array
 except:
     from collections import OrderedDict
     from interfaces import *
-    from peripherals import SPI
     from registers_map import _get_registers_map, array
 
 
@@ -37,9 +35,9 @@ def _is_even_integer(n):
 
 
 def _freq_trim(n):
-    # return n
+    return n  # for accuracy
     # return math.floor(n)
-    return round(n)
+    # return round(n)
 
 
 
@@ -808,7 +806,7 @@ class ADF4351(Device):
         def set_frequency(self, freq):
             d = freq / self._adf.freq_pfd
             self._adf.rf_n_divider._set_divider_equivalent(d)
-            _ = self.freq  # validate
+            _ = self._adf.rf_n_divider.freq  # validate
             return True
 
 
@@ -980,7 +978,7 @@ class ADF4351(Device):
 
     class _AuxOutput(_IntegerDivider):
 
-        SOURCES = {'DIVIDED_OUTPUT': 0, 'FUNDAMENTAL': 1}
+        SOURCES = {'DIVIDED': 0, 'FUNDAMENTAL': 1}
         POWER_DBM_LEVELS = {-4: 0, -1: 1, 2: 2, 5: 3}
         POWER_DBM_LEVELS_value_key = _value_key(POWER_DBM_LEVELS)
 
@@ -1120,9 +1118,12 @@ class ADF4351(Device):
         FREQ_MAX_FRACTIONAL_MODE = 32e6
         FREQ_MAX_INTEGER_MODE = 90e6
 
+        SOURCES = {'DIVIDED': 0, 'FUNDAMENTAL': 1}
+        SOURCES_value_key = _value_key(SOURCES)
 
-        def __init__(self, adf, vco_as_source = True):
-            super().__init__(adf, vco_as_source)
+
+        def __init__(self, adf, source = 'FUNDAMENTAL'):
+            super().__init__(adf, source)
 
 
         @property
@@ -1137,11 +1138,11 @@ class ADF4351(Device):
 
 
         @property
-        def vco_as_source(self):
+        def fundamental_as_feedback(self):
             return self._adf.map.value_of_element('Feedback_Select') == 1
 
 
-        def _set_input_source(self, vco_as_source):
+        def _set_input_source(self, source = 'FUNDAMENTAL'):
             # The DB23 bit selects the feedback from the VCO output to the N counter.
             # When this bit is set to 1, the signal is taken directly from the VCO.
             # When this bit is set to 0, the signal is taken from the output of the output dividers.
@@ -1151,9 +1152,12 @@ class ADF4351(Device):
             # This is useful in some applications where the positive interference of
             # signals is required to increase the power.
 
-            self._adf._write_element_by_name('Feedback_Select', int(bool(vco_as_source)))
+            valids = self.SOURCES.keys()
+            assert source in valids, 'valid source: {}'.format(valids)
 
-            self._source = self._adf.vco if vco_as_source else self._adf.rf_divider
+            self._adf._write_element_by_name('Feedback_Select', int(source == 'FUNDAMENTAL'))
+
+            self._source = self._adf.vco if source == 'FUNDAMENTAL' else self._adf.rf_divider
 
             self._synch_freq_pfd()  # set divider so my freq == freq_pfd.
             _ = self.freq  # validate freq
@@ -1332,7 +1336,7 @@ class ADF4351(Device):
 
         @property
         def divider_equivalent(self):
-            return self.divider * (1 if self.vco_as_source else self._adf.rf_divider.divider)
+            return self.divider * (1 if self.fundamental_as_feedback else self._adf.rf_divider.divider)
 
 
         def _set_divider_equivalent(self, divider_eqvilent):

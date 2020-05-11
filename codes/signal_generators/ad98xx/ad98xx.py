@@ -4,11 +4,9 @@
 try:
     from ..interfaces import *
     from utilities.register import Register, Element, array
-    from utilities.adapters.peripherals import SPI
 except:
     from interfaces import *
     from register import Register, Element, array
-    from peripherals import SPI
 
 FREQ_MCLK = int(25e6)
 POW2_32 = 2 ** 32
