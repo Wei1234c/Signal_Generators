@@ -952,14 +952,16 @@ class ADF4351(Device):
 
 
         def set_frequency(self, freq, channel_resolution = None, rf_divider_as = None):
-            channel_resolution = self.channel_resolution if channel_resolution is None else channel_resolution
+            if channel_resolution is not None:
+                self.channel_resolution = channel_resolution
+
             self._adf._register_write_enabled = False
 
             for d in sorted(self.rf_divider.DIVIDERS, reverse = True) if rf_divider_as is None else (rf_divider_as,):
                 try:
                     freq_vco = freq * d
                     self.rf_divider._set_divider(d)
-                    self._adf.rf_n_divider._set_channel_resolution(channel_resolution)
+                    self._adf.rf_n_divider._set_channel_resolution(self.channel_resolution)
                     self._adf.vco.set_frequency(freq_vco)
                     _ = self.freq  # validate
 
@@ -1585,7 +1587,7 @@ class ADF4351(Device):
             self._adf._write_element_by_name('Charge_Cancelation', int(bool(value)))
 
 
-    def __init__(self, spi, ss, ss_polarity = 1,
+    def __init__(self, bus,
                  freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
                  freq_mclk = FREQ_MCLK,
                  registers_map = None, registers_values = None,
@@ -1597,7 +1599,7 @@ class ADF4351(Device):
                          registers_map = registers_map, registers_values = registers_values,
                          commands = commands)
 
-        self._spi = SPI(spi, ss, ss_polarity = ss_polarity)
+        self._bus = bus
         self._register_write_enabled = False
         self.freq_mclk = freq_mclk
 
@@ -1648,7 +1650,7 @@ class ADF4351(Device):
 
     @property
     def is_virtual_device(self):
-        return self._spi._spi is None
+        return self._bus.is_virtual_device
 
 
     @property
@@ -1666,6 +1668,10 @@ class ADF4351(Device):
     def apply_signal(self, freq, phase = 0):
         self.set_frequency(freq)
         self.set_phase(phase)
+
+
+    def set_channel_resolution(self, resolution = None):
+        self.rf_n_divider._set_channel_resolution(resolution)
 
 
     def set_frequency(self, freq, channel_resolution = None, rf_divider_as = None):
@@ -1837,7 +1843,7 @@ class ADF4351(Device):
     def _write_register(self, register, reset = False):
         if self._register_write_enabled:
             super()._write_register(register, reset = reset)
-            self._spi.write(register.bytes)
+            self._bus.write(register.bytes)
 
 
     def _write_register_0(self):

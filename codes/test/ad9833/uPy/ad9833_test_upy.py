@@ -23,8 +23,10 @@ if with_hardware_device:
 else:
     _spi = _ss1 = _ss2 = None  # using None for testing without actual hardware device.
 
-ad1 = ad9833.AD9833(_spi, _ss1)
-ad2 = ad9833.AD9833(_spi, _ss2)
+bus1 = peripherals.SPI(_spi, _ss1)
+bus2 = peripherals.SPI(_spi, _ss2)
+ad1 = ad9833.AD9833(bus1)
+ad2 = ad9833.AD9833(bus2)
 
 # # Not used.
 # _ss3 = peripherals.Pin.get_uPy_pin(16, output = True)

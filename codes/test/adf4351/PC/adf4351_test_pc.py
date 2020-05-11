@@ -17,13 +17,14 @@ if with_hardware_device:
 else:
     _spi = _ss = None  # using None for testing without actual hardware device.
 
-adf = ADF4351(_spi, _ss)
+bus = peripherals.SPI(_spi, _ss)
+adf = ADF4351(bus)
 
 # adf.set_frequency(35e6)
 # adf.set_frequency(4.4e9, channel_resolution = 100e3, rf_divider_as = None)
 # adf.set_frequency(1.6002e9, channel_resolution = 100e3, rf_divider_as = None)
 # adf.set_frequency(50.4e6, channel_resolution = 100e3, rf_divider_as = None)
-adf.set_frequency(int(1.5e9), channel_resolution=100e3)#, rf_divider_as=2)
+adf.set_frequency(int(1.5e9), channel_resolution = 100e3)  # , rf_divider_as=2)
 
 print(adf.current_dividers)
 print(adf.registers_values)

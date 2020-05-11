@@ -33,12 +33,12 @@ class AD9834(AD98xx):
     FREQ_MCLK = int(75e6)
 
 
-    def __init__(self, spi, ss,
+    def __init__(self, bus,
                  freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
                  freq_mclk = FREQ_MCLK, commands = None,
                  pin_fselect = None, pin_pselect = None, pin_reset = None, pin_sleep = None):
 
-        super().__init__(spi, ss,
+        super().__init__(bus = bus,
                          freq = freq, freq_correction = freq_correction, phase = phase, shape = shape,
                          freq_mclk = freq_mclk, commands = commands)
 

@@ -180,13 +180,13 @@ class AD98xx(Device):
                      'half_square': {'OPBITEN': 1, 'SLEEP12': 1, 'Mode': 0, 'DIV2': 0}, }
 
 
-    def __init__(self, spi, ss, ss_polarity = 1, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT,
+    def __init__(self, bus, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT,
                  shape = SHAPE_DEFAULT,
                  freq_mclk = FREQ_MCLK, commands = None):
 
         Device.__init__(self, freq = freq, freq_correction = freq_correction, phase = phase, shape = shape,
                         commands = commands)
-        self._spi = SPI(spi, ss, ss_polarity = ss_polarity)
+        self._bus = bus
         self.freq_mclk = freq_mclk
 
         self.control_register = ControlRegister()
@@ -210,7 +210,7 @@ class AD98xx(Device):
 
     def _write_register(self, register, reset = False):
         super()._write_register(register, reset = reset)
-        return self._spi.write(register.bytes)
+        return self._bus.write(register.bytes)
 
 
     def _update_control_register(self, reset = False):
@@ -224,10 +224,10 @@ class AD98xx(Device):
         self._enable_B28(True)
 
         self._show_bus_data(register.lsw, address = register.address)
-        self._spi.write(register.lsw)
+        self._bus.write(register.lsw)
 
         self._show_bus_data(register.msw, address = register.address)
-        self._spi.write(register.msw)
+        self._bus.write(register.msw)
 
         self._print_register(register)
 

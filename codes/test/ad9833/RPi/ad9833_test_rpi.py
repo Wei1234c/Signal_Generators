@@ -4,7 +4,7 @@ from signal_generators import tools
 from signal_generators.ad98xx.ad9833 import *
 
 
-with_hardware_device = True
+with_hardware_device = False
 
 if with_hardware_device:
     _spi = peripherals.SPI.get_RPi_spi(mode = 2)
@@ -13,8 +13,10 @@ if with_hardware_device:
 else:
     _spi = _ss1 = _ss2 = None  # using None for testing without actual hardware device.
 
-ad1 = AD9833(_spi, _ss1)
-ad2 = AD9833(_spi, _ss2)
+bus1 = peripherals.SPI(_spi, _ss1)
+bus2 = peripherals.SPI(_spi, _ss2)
+ad1 = AD9833(bus1)
+ad2 = AD9833(bus2)
 
 bfsk = modulators.BFSK(ad1)
 bpsk = modulators.BPSK(ad1)

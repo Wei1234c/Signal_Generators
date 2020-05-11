@@ -91,13 +91,13 @@ class AD9850(AD98xx):
     SHAPES_CONFIG = {'sine': None}
 
 
-    def __init__(self, spi, ss, pin_reset, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT,
+    def __init__(self, bus, pin_reset, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT,
                  shape = SHAPE_DEFAULT,
                  freq_mclk = FREQ_MCLK, commands = None):
 
         Device.__init__(self, freq = freq, freq_correction = freq_correction, phase = phase, shape = shape,
                         commands = commands)
-        self._spi = SPI(spi, ss, ss_polarity = 1)
+        self._bus = bus
         self.pin_reset = pin_reset
         self.freq_mclk = freq_mclk
         self.control_register = ControlRegister()

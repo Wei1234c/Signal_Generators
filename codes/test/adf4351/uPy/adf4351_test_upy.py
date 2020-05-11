@@ -20,7 +20,8 @@ if with_hardware_device:
 else:
     _spi = _ss = None  # using None for testing without actual hardware device.
 
-adf = ADF4351(_spi, _ss)
+bus = peripherals.SPI(_spi, _ss)
+adf = ADF4351(bus)
 
 # adf.set_frequency(35e6)
 adf.set_frequency(1.5e9, channel_resolution = 100e3, rf_divider_as = None)
