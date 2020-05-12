@@ -24,7 +24,7 @@ adf = ADF4351(bus)
 # adf.set_frequency(4.4e9, channel_resolution = 100e3, rf_divider_as = None)
 # adf.set_frequency(1.6002e9, channel_resolution = 100e3, rf_divider_as = None)
 # adf.set_frequency(50.4e6, channel_resolution = 100e3, rf_divider_as = None)
-# adf.set_frequency(int(1.5e9), channel_resolution = 100e3, rf_divider_as = 2)
+adf.set_frequency(1.5002e9, channel_resolution = 100e3)
 
 print(adf.current_dividers)
 print(adf.registers_values)

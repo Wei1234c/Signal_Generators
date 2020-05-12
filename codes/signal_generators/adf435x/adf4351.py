@@ -2,19 +2,11 @@
 
 
 try:
-    from collections import OrderedDict
     from ..interfaces import *
     from .registers_map import _get_registers_map, array
 except:
-    from collections import OrderedDict
     from interfaces import *
     from registers_map import _get_registers_map, array
-
-
-
-def _section_value(value, idx_msb, idx_lsb):
-    mask = (2 ** (idx_msb - idx_lsb + 1) - 1) << idx_lsb
-    return (value & mask) >> idx_lsb
 
 
 
@@ -25,12 +17,6 @@ def _value_key(dictionary):
 
 def _is_integer(n):
     return math.floor(n) == n
-
-
-
-def _is_even_integer(n):
-    i = math.floor(n)
-    return i == n and i % 2 == 0
 
 
 
@@ -65,12 +51,12 @@ class ADF4351(Device):
 
         @property
         def status(self):
-            return OrderedDict({'type'       : self.__class__.__name__,
-                                'source_type': self.source.__class__.__name__,
-                                'source_freq': self.source.freq,
-                                'my_divider' : self.divider,
-                                'is_integer' : self.is_in_integer_mode,
-                                'my_freq'    : self.freq})
+            return {'type'       : self.__class__.__name__,
+                    'source_type': self.source.__class__.__name__,
+                    'source_freq': self.source.freq,
+                    'my_divider' : self.divider,
+                    'is_integer' : self.is_in_integer_mode,
+                    'my_freq'    : self.freq}
 
 
         @property
@@ -134,7 +120,7 @@ class ADF4351(Device):
 
             a = math.floor(divider)
             c = self._denominator
-            b = math.floor(c * (divider - a))
+            b = round(c * (divider - a))
 
             is_integer = _is_integer(divider)
 
@@ -205,7 +191,7 @@ class ADF4351(Device):
             raise NotImplementedError()
 
 
-    class _ReferenceInput(_IntegerDivider):
+    class _ReferenceInput:
 
         # The PFD frequency (fPFD) equation is
         # fPFD = REFIN × [(1 + D)/(R × (1 + T))] (2)
@@ -219,15 +205,14 @@ class ADF4351(Device):
         FREQ_MAX = 250e6
 
 
-        def __init__(self, adf, freq):
+        def __init__(self, freq):
             self.set_frequency(freq)
-            super().__init__(adf, None)
 
 
         @property
         def status(self):
-            return OrderedDict({'type'   : self.__class__.__name__,
-                                'my_freq': self.freq})
+            return {'type'   : self.__class__.__name__,
+                    'my_freq': self.freq}
 
 
         @property
@@ -380,14 +365,14 @@ class ADF4351(Device):
 
         @property
         def status(self):
-            return OrderedDict({'type'       : self.__class__.__name__,
-                                'source_type': self.source.__class__.__name__,
-                                'source_freq': self.source.freq,
-                                'enabled'    : self.band_select_enabled,
-                                'mode'       : self.mode,
-                                'my_divider' : self.divider,
-                                'is_integer' : self.is_in_integer_mode,
-                                'my_freq'    : self.freq})
+            return {'type'       : self.__class__.__name__,
+                    'source_type': self.source.__class__.__name__,
+                    'source_freq': self.source.freq,
+                    'enabled'    : self.band_select_enabled,
+                    'mode'       : self.mode,
+                    'my_divider' : self.divider,
+                    'is_integer' : self.is_in_integer_mode,
+                    'my_freq'    : self.freq}
 
 
         @property
@@ -513,13 +498,13 @@ class ADF4351(Device):
 
         @property
         def status(self):
-            return OrderedDict({'type'       : self.__class__.__name__,
-                                'source_type': self.source.__class__.__name__,
-                                'source_freq': self.source.freq,
-                                'mode'       : self.mode,
-                                'my_divider' : self.divider,
-                                'is_integer' : self.is_in_integer_mode,
-                                'my_freq'    : self.freq})
+            return {'type'       : self.__class__.__name__,
+                    'source_type': self.source.__class__.__name__,
+                    'source_freq': self.source.freq,
+                    'mode'       : self.mode,
+                    'my_divider' : self.divider,
+                    'is_integer' : self.is_in_integer_mode,
+                    'my_freq'    : self.freq}
 
 
         @property
@@ -548,7 +533,7 @@ class ADF4351(Device):
             self._adf._write_element_by_name('Clock_Divider_Value', divider)
 
 
-    class _PhaseFrequencyDetector(_IntegerDivider):
+    class _PhaseFrequencyDetector:
         # PHASE FREQUENCY DETECTOR (PFD) AND CHARGE PUMP
 
         # The phase frequency detector (PFD) takes inputs from the
@@ -579,75 +564,26 @@ class ADF4351(Device):
         ABP_WIDTH = {'6ns': 0,  # for fractional-N applications.
                      '3ns': 1}  # for integer-N applications}
 
-        FREQUENCY_PFD_MAX = int(90e6)
-        FREQUENCY_PFD_MAX_HALF = FREQUENCY_PFD_MAX / 2
-
         LOCK_DETECT_PIN_OPERATIONS = {'LOW'                : 0,
                                       'DIGITAL_LOCK_DETECT': 1,
                                       'HIGH'               : 3}
 
 
-        def __init__(self, adf, source,
+        def __init__(self, adf,
                      CSR_enabled = True, LD_pin_mode = 'DIGITAL_LOCK_DETECT', polarity_non_inverting = True):
-
-            self._feedback_source = None
-            super().__init__(adf, source)
-
+            self._adf = adf
             self._enable_cycle_slip_reduction(CSR_enabled)
             self._set_lock_detect_pin_operation(value = LD_pin_mode)
             self._set_polarity(non_inverting = polarity_non_inverting)
 
 
         @property
-        def source(self):
-            return self._source
-
-
-        @property
-        def reference_source(self):
-            return self.source
-
-
-        @property
-        def feedback_source(self):
-            return self._feedback_source
-
-
-        @property
-        def freq(self):
-            self._valid_freq_pfd(self.source.freq)
-            return self.source.freq
-
-
-        @property
-        def freq_pfd(self):
-            return self.freq
-
-
-        def _set_reference_source(self, source):
-            self._set_input_source(source)
-
-
-        def _set_feedback_source(self, source):
-            self._feedback_source = source
-
-            # =====================================================================
-
-
-        def _valid_freq_pfd(self, freq):
-            # For integer-N applications, the in-band phase noise is improved
-            # by enabling the shorter pulse width. The PFD frequency can
-            # operate up to 90 MHz in this mode.
-
-            assert freq <= self.FREQUENCY_PFD_MAX, \
-                'freq_pfd need to be lower than {}'.format(self.FREQUENCY_PFD_MAX)
-
-            # To operate with PFD frequencies higher than 45 MHz, VCO band select must be disabled by
-            # setting the phase adjust bit (DB28) to 1 in Register 1.
-
-            if freq > self.FREQUENCY_PFD_MAX_HALF:
-                assert not self._adf.vco.band_select_enabled, \
-                    'PFD frequencies is higher than 45 MHz, VCO band select must be disabled'
+        def status(self):
+            return {'type'             : self.__class__.__name__,
+                    'LDF'              : self.lock_detect_function_enabled,
+                    'LDP'              : self.lock_detect_precision_enabled,
+                    'CSR'              : self.cycle_slip_reduction_enabled,
+                    'inverted_polarity': self.with_inverted_polarity}
 
 
         def _set_antibacklash_pulse_width(self, as_3_ns = True):
@@ -661,6 +597,11 @@ class ADF4351(Device):
             self._adf._write_element_by_name('ABP', int(as_3_ns))
 
 
+        @property
+        def lock_detect_function_enabled(self):
+            return self._adf.rf_n_divider.is_in_integer_mode
+
+
         def _enable_lock_detect_function(self, value = True):
             # The DB8 bit configures the lock detect function (LDF). The LDF controls the number of PFD
             # cycles monitored by the lock detect circuit to ascertain whether lock has been achieved.
@@ -672,8 +613,8 @@ class ADF4351(Device):
 
 
         @property
-        def lock_detect_function_enabled(self):
-            return self._adf.rf_n_divider.is_in_integer_mode
+        def lock_detect_precision_enabled(self):
+            return self._adf.map.value_of_element('LDP') == 1
 
 
         def _enable_lock_detect_precision(self, value = True):
@@ -692,8 +633,8 @@ class ADF4351(Device):
 
 
         @property
-        def lock_detect_precision_enabled(self):
-            return self._adf.map.value_of_element('LDP') == 1
+        def with_inverted_polarity(self):
+            return self._adf.map.value_of_element('Phase_Detector_Polarity') == 0
 
 
         def _set_polarity(self, non_inverting = True):
@@ -702,11 +643,6 @@ class ADF4351(Device):
             # If an active filter with an inverting characteristic is used, this bit should be set to 0.
 
             self._adf._write_element_by_name('Phase_Detector_Polarity', int(bool(non_inverting)))
-
-
-        @property
-        def with_inverted_polarity(self):
-            return self._adf.map.value_of_element('Phase_Detector_Polarity') == 0
 
 
         @property
@@ -805,8 +741,9 @@ class ADF4351(Device):
 
         def set_frequency(self, freq):
             d = freq / self._adf.freq_pfd
-            self._adf.rf_n_divider._set_divider_equivalent(d)
-            _ = self._adf.rf_n_divider.freq  # validate
+            d_n_divider = d if self._adf.rf_n_divider.fundamental_as_feedback else d / self._adf.rf_divider.divider
+            self._adf.rf_n_divider._set_divider(d_n_divider)
+            _ = self.freq  # validate
             return True
 
 
@@ -823,7 +760,7 @@ class ADF4351(Device):
 
         @property
         def is_in_integer_mode(self):
-            return self.source.feedback_source.is_in_integer_mode
+            return self._adf.rf_n_divider.is_in_integer_mode
 
 
         def _power_down(self, value = True):
@@ -961,7 +898,7 @@ class ADF4351(Device):
                     self.rf_divider._set_divider(d)
                     self._adf.rf_n_divider._set_channel_resolution(self.channel_resolution)
                     self._adf.vco.set_frequency(freq_vco)
-                    _ = self.freq  # validate
+                    _ = self._adf.rf_n_divider.freq  # validate
 
                     self._adf.write_all_registers()
                     return True
@@ -1020,82 +957,11 @@ class ADF4351(Device):
             self._adf._write_element_by_name('AUX_Output_Power', self.POWER_DBM_LEVELS[dBm])
 
 
-    class _Prescaler(_DividerBase):
-
-        DENOMINATOR_BITS = 1
-        DENOMINATOR_MAX = 2 ** DENOMINATOR_BITS - 1
-
-        DIVIDER_MIN = 4 / 5
-        DIVIDER_MAX = 8 / 9
-        DIVIDER_DEFAULT = DIVIDER_MAX
+    class _RF_N_Divider(_DividerBase):
 
         PRESCALERS = {'4/5': 0, '8/9': 1}
         PRESCALERS_value_key = _value_key(PRESCALERS)
         FREQ_MAX_AT_PRESCALE_4_5 = 3.6e9
-
-
-        @property
-        def status(self):
-            return OrderedDict({'type'       : self.__class__.__name__,
-                                'source_type': self.source.__class__.__name__,
-                                'source_freq': self.source.freq,
-                                'prescaler'  : self.prescaler,
-                                'my_divider' : self.divider,
-                                'is_integer' : self.is_in_integer_mode,
-                                'my_freq'    : self.freq})
-
-
-        @property
-        def freq(self):
-            # When the prescaler is set to 4/5, the maximum RF frequency allowed is 3.6 GHz.
-            # Therefore, when operating the ADF4351 above 3.6 GHz, the prescaler must be set to 8/9.
-
-            if self.prescaler == '4/5' and hasattr(self._adf, 'rf_out'):
-                assert self._adf.vco.freq <= self.FREQ_MAX_AT_PRESCALE_4_5, \
-                    'When operating the ADF4351 above 3.6 GHz, the prescaler must be set to 8/9.'
-
-            return _freq_trim(self.source.freq * self.divider)
-
-
-        def _set_divider(self, divider):
-            result = self._set_prescaler('4/5' if divider == 4 / 5 else '8/9')
-            self._divider = 4 / 5 if divider == 4 / 5 else 8 / 9
-            self._post_set_divider()
-            return result
-
-
-        @property
-        def is_in_integer_mode(self):
-            return False
-
-
-        @property
-        def prescaler(self):
-            return self.PRESCALERS_value_key[self._adf.map.value_of_element('Prescaler_Value')]
-
-
-        def _set_prescaler(self, prescaler):
-            # The dual-modulus prescaler (P/P + 1), along with the INT, FRAC, and MOD values, determines
-            # the overall division ratio from the VCO output to the PFD input. The PR1 bit (DB27) in
-            # Register 1 sets the prescaler value. Operating at CML levels, the prescaler takes the
-            # clock from the VCO output and divides it down for the counters. The prescaler is based on
-            # a synchronous 4/5 core.
-            #
-            # When the prescaler is set to 4/5, the maximum RF frequency allowed is 3.6 GHz.
-            # Therefore, when operating the ADF4351 above 3.6 GHz, the prescaler must be set to 8/9.
-            #
-            # The prescaler limits the INT value as follows:
-            # · Prescaler = 4/5: NMIN = 23
-            # · Prescaler = 8/9: NMIN = 75
-
-            valids = self.PRESCALERS.keys()
-            assert prescaler in valids, 'valid prescaler: {}'.format(valids)
-
-            self._adf._write_element_by_name('Prescaler_Value', self.PRESCALERS[prescaler])
-            self._adf._RF_N_Divider.DIVIDER_MIN = self._adf._RF_N_Divider.INT_MIN[prescaler]
-
-
-    class _RF_N_Divider(_DividerBase):
 
         INT_BITS = 16
         INT_MIN = {'4/5': 23, '8/9': 75}
@@ -1115,26 +981,33 @@ class ADF4351(Device):
 
         DENOMINATOR_BITS = MOD_BITS
         DENOMINATOR_MAX = MOD_MAX
+
         FREQ_MAX_FRACTIONAL_MODE = 32e6
         FREQ_MAX_INTEGER_MODE = 90e6
+
+        FREQUENCY_PFD_MAX = int(90e6)
+        FREQUENCY_PFD_MAX_HALF = FREQUENCY_PFD_MAX / 2
 
         SOURCES = {'DIVIDED': 0, 'FUNDAMENTAL': 1}
         SOURCES_value_key = _value_key(SOURCES)
 
 
-        def __init__(self, adf, source = 'FUNDAMENTAL'):
+        def __init__(self, adf, source = 'FUNDAMENTAL', prescaler = '8/9'):
+            self.DIVIDER_MIN = self.INT_MIN[prescaler]
             super().__init__(adf, source)
+            self._set_prescaler(prescaler)
 
 
         @property
         def status(self):
-            return OrderedDict({'type'              : self.__class__.__name__,
-                                'source_type'       : self.source.__class__.__name__,
-                                'source_freq'       : self.source.freq,
-                                'my_divider'        : self.divider,
-                                'divider_equivalent': self.divider_equivalent,
-                                'is_integer'        : self.is_in_integer_mode,
-                                'my_freq'           : self.freq})
+            return {'type'              : self.__class__.__name__,
+                    'source_type'       : self.source.__class__.__name__,
+                    'source_freq'       : self.source.freq,
+                    'prescaler'         : self.prescaler,
+                    'my_divider'        : self.divider,
+                    'divider_equivalent': self.divider_equivalent,
+                    'is_integer'        : self.is_in_integer_mode,
+                    'my_freq'           : self.freq}
 
 
         @property
@@ -1164,17 +1037,59 @@ class ADF4351(Device):
 
 
         @property
+        def prescaler(self):
+            return self.PRESCALERS_value_key[self._adf.map.value_of_element('Prescaler_Value')]
+
+
+        def _set_prescaler(self, prescaler = '8/9'):
+            # The dual-modulus prescaler (P/P + 1), along with the INT, FRAC, and MOD values, determines
+            # the overall division ratio from the VCO output to the PFD input. The PR1 bit (DB27) in
+            # Register 1 sets the prescaler value. Operating at CML levels, the prescaler takes the
+            # clock from the VCO output and divides it down for the counters. The prescaler is based on
+            # a synchronous 4/5 core.
+            #
+            # When the prescaler is set to 4/5, the maximum RF frequency allowed is 3.6 GHz.
+            # Therefore, when operating the ADF4351 above 3.6 GHz, the prescaler must be set to 8/9.
+            #
+            # The prescaler limits the INT value as follows:
+            # · Prescaler = 4/5: NMIN = 23
+            # · Prescaler = 8/9: NMIN = 75
+
+            valids = self.PRESCALERS.keys()
+            assert prescaler in valids, 'valid prescaler: {}'.format(valids)
+
+            self._adf._write_element_by_name('Prescaler_Value', self.PRESCALERS[prescaler])
+            self.DIVIDER_MIN = self.INT_MIN[prescaler]
+
+
+        @property
         def freq(self):
+            freq = _freq_trim(self.source.freq / self.divider)
+
+            # When the prescaler is set to 4/5, the maximum RF frequency allowed is 3.6 GHz.
+            # Therefore, when operating the ADF4351 above 3.6 GHz, the prescaler must be set to 8/9.
+            if self.prescaler == '4/5':
+                assert self._adf.vco.freq <= self.FREQ_MAX_AT_PRESCALE_4_5, \
+                    'When operating the ADF4351 above 3.6 GHz, the prescaler must be set to 8/9.'
+
             # Note that in fractional-N mode, the PFD cannot operate above 32 MHz  due to a
             # limitation in the speed of the Σ-Δ circuit of the N divider.
             # For integer-N applications, the PFD can operate up to 90 MHz.
-
-            freq = _freq_trim(self.source.freq / self.divider)
-
             freq_limit = self.FREQ_MAX_INTEGER_MODE if self.is_in_integer_mode else self.FREQ_MAX_FRACTIONAL_MODE
             assert freq <= freq_limit, 'freq should be less than {}'.format(freq_limit)
 
-            self._adf.phase_frequency_detector._valid_freq_pfd(freq)  # ouput freq of N-divider is also freq_pfd.
+            # ouput freq of N-divider is also freq_pfd.
+            # For integer-N applications, the in-band phase noise is improved
+            # by enabling the shorter pulse width. The PFD frequency can
+            # operate up to 90 MHz in this mode.
+            assert freq <= self.FREQUENCY_PFD_MAX, \
+                'freq_pfd need to be lower than {}'.format(self.FREQUENCY_PFD_MAX)
+
+            # To operate with PFD frequencies higher than 45 MHz, VCO band select must be disabled by
+            # setting the phase adjust bit (DB28) to 1 in Register 1.
+            if freq > self.FREQUENCY_PFD_MAX_HALF:
+                assert not self._adf.vco.band_select_enabled, \
+                    'PFD frequencies is higher than 45 MHz, VCO band select must be disabled'
 
             return freq
 
@@ -1233,6 +1148,7 @@ class ADF4351(Device):
             super()._set_divider(divider)
             self._adf.vco._set_divider(self.divider_equivalent)  # re-assign VCO's divider.
             self._adf.band_select_clock_divider._refresh_divider()
+            # _ = self.freq  # validate
             return True
 
 
@@ -1258,7 +1174,7 @@ class ADF4351(Device):
             #  MOD is the preset fractional modulus (2 to 4095).
             # self._adf._RF_N_Divider.INT_MIN[prescaler]
 
-            assert self.INT_MIN[self._adf.prescaler.prescaler] <= a <= self.INT_MAX  # INT = a  # 4/5: 23 to 65535
+            assert self.INT_MIN[self.prescaler] <= a <= self.INT_MAX  # INT = a  # 4/5: 23 to 65535
             assert self.FRAC_MIN <= b <= self.FRAC_MAX  # FRAC = b  # 0 to MOD-1
             assert self.MOD_MIN <= c <= self.MOD_MAX  # MOD = c  # 2 to 4095
 
@@ -1294,7 +1210,6 @@ class ADF4351(Device):
             # When DB8 is set to 0, the number of PFD cycles monitored is 40.
             # When DB8 is set to 1, the number of PFD cycles monitored is 5.
             # It is recommended that the DB8 bit be set to 0 for fractional-N mode and to 1 for integer-N mode.
-
             self._adf.phase_frequency_detector._enable_lock_detect_function(value)
 
             # The lock detect precision bit (Bit DB7) sets the comparison window in the lock detect circuit.
@@ -1307,7 +1222,6 @@ class ADF4351(Device):
             # before digital lock detect goes high.
             # For fractional-N applications, the recommended setting for Bits[DB8:DB7]
             # is 00; for integer-N applications, the recommended setting for Bits[DB8:DB7] is 11.
-
             self._adf.phase_frequency_detector._enable_lock_detect_precision(value)
 
             # The PFD includes a programmable delay element that sets the
@@ -1325,12 +1239,10 @@ class ADF4351(Device):
             # operate up to 90 MHz in this mode. To operate with PFD
             # frequencies higher than 45 MHz, VCO band select must be disabled by
             # setting the phase adjust bit (DB28) to 1 in Register 1.
-
             self._adf.phase_frequency_detector._set_antibacklash_pulse_width(as_3_ns = value)
 
             # Setting the DB21 bit to 1 enables charge pump charge cancelation. This has the effect of
             # reducing PFD spurs in integer-N mode. In fractional-N mode, this bit should be set to 0.
-
             self._adf.charge_pump._enable_cancelation(value)
 
 
@@ -1339,29 +1251,24 @@ class ADF4351(Device):
             return self.divider * (1 if self.fundamental_as_feedback else self._adf.rf_divider.divider)
 
 
-        def _set_divider_equivalent(self, divider_eqvilent):
-            ratio = divider_eqvilent / self.divider_equivalent
-            self._set_divider(self.divider * ratio)
-
-
-    class _Phaser(_IntegerDivider):
+    class _Phaser:
         DIVIDER_BITS = 12
+        DIVIDER_MIN = 0
+        DIVIDER_MAX = 2 ** DIVIDER_BITS - 1
         DIVIDER_DEFAULT = 1
 
 
-        def __init__(self, adf, source, phase_adjust = False):
-            super().__init__(adf, source)
-            self._divider_min = 0
+        def __init__(self, adf, phase_adjust = False):
+            self._adf = adf
+            self._set_parameters(self.DIVIDER_DEFAULT)
             self._enable_phase_adjust(phase_adjust)
 
 
         @property
         def status(self):
-            return OrderedDict({'type'                : self.__class__.__name__,
-                                'source_type'         : self.source.__class__.__name__,
-                                'source_freq'         : self.source.freq,
-                                'phase_adjust_enabled': self.phase_adjust_enabled,
-                                'phase'               : self.phase})
+            return {'type'                : self.__class__.__name__,
+                    'phase_adjust_enabled': self.phase_adjust_enabled,
+                    'phase'               : self.phase}
 
 
         @property
@@ -1403,11 +1310,13 @@ class ADF4351(Device):
 
 
         def _set_parameters(self, divider):
+            assert _is_integer(divider) and self.DIVIDER_MIN <= divider <= self.DIVIDER_MAX
+
             self._adf._write_element_by_name('Phase_Value', divider)
             self._adf._confirm_double_buffer()
 
 
-    class _MuxOut(_IntegerDivider):
+    class _MuxOut:
         # MUXOUT AND LOCK DETECT
         # The multiplexer output on the ADF4351 allows the user to access
         # various internal points on the chip. The state of MUXOUT is
@@ -1425,17 +1334,14 @@ class ADF4351(Device):
 
 
         def __init__(self, adf, source = 'THREE_STATE'):
-            super().__init__(adf, source)
+            self._adf = adf
+            self._set_input_source(source)
 
 
         @property
         def status(self):
-            return OrderedDict({'type'       : self.__class__.__name__,
-                                'source_type': self.source_type,
-                                'source_freq': self.source.freq if self.source is not None else None,
-                                'my_divider' : self.divider,
-                                'is_integer' : self.is_in_integer_mode,
-                                'my_freq'    : self.freq if self.source is not None else None})
+            return {'type'       : self.__class__.__name__,
+                    'source_type': self.source_type}
 
 
         @property
@@ -1450,16 +1356,7 @@ class ADF4351(Device):
             valids = self.SOURCES.keys()
             assert source in valids, 'valid source: {}'.format(valids)
 
-            self._source = None
-
             self._adf._write_element_by_name('MUXOUT', self.SOURCES[source])
-
-            if source == 'R_COUNTER':
-                self._source = self._adf.r_counter
-                _ = self.freq  # validate freq
-            if source == 'N_DIVIDER':
-                self._source = self._adf.rf_n_divider
-                _ = self.freq  # validate freq
 
 
     class _NoiseControl:
@@ -1474,8 +1371,8 @@ class ADF4351(Device):
 
         @property
         def status(self):
-            return OrderedDict({'type': self.__class__.__name__,
-                                'mode': self.mode})
+            return {'type': self.__class__.__name__,
+                    'mode': self.mode}
 
 
         def _set_mode(self, mode = 'LOW_NOISE_MODE'):
@@ -1545,10 +1442,10 @@ class ADF4351(Device):
 
         @property
         def status(self):
-            return OrderedDict({'type'               : self.__class__.__name__,
-                                'charge_pump_current': self.current,
-                                'three_state_enabled': self.three_state_enabled,
-                                'cancelation_enabled': self.cancelation_enabled})
+            return {'type'               : self.__class__.__name__,
+                    'charge_pump_current': self.current,
+                    'three_state_enabled': self.three_state_enabled,
+                    'cancelation_enabled': self.cancelation_enabled}
 
 
         @property
@@ -1606,12 +1503,6 @@ class ADF4351(Device):
         self._bus = bus
         self._register_write_enabled = False
         self.freq_mclk = freq_mclk
-
-        self.init()
-
-
-    def reset(self):
-        self._action = 'reset'
         self.init()
 
 
@@ -1625,19 +1516,21 @@ class ADF4351(Device):
 
 
     def _build(self):
+
         self._register_write_enabled = False
 
         self.noise_control = self._NoiseControl(self)
         self.charge_pump = self._ChargePump(self)
         self.muxout = self._MuxOut(self)
 
-        self.mclk = self._ReferenceInput(self, self.freq_mclk)
+        self.mclk = self._ReferenceInput(self.freq_mclk)
         self.ref_doubler = self._ReferenceDoubler(self, self.mclk)
         self.r_counter = self._R_Counter(self, self.ref_doubler)
         self.ref_divider = self._ReferenceDivider(self, self.r_counter)
 
-        self.phase_frequency_detector = self._PhaseFrequencyDetector(self, self.ref_divider)
-        self.vco = self._VCO(self, self.phase_frequency_detector)
+        self.phase_frequency_detector = self._PhaseFrequencyDetector(self)
+
+        self.vco = self._VCO(self, self.ref_divider)
         self.rf_divider = self._RF_Divider(self, self.vco)
         self.rf_out = self._RF_Output(self, self.rf_divider)
         self.auxout = self._AuxOutput(self)
@@ -1645,11 +1538,9 @@ class ADF4351(Device):
         self.band_select_clock_divider = self._BandSelectClockDivider(self, self.ref_divider)
         self.clock_divider = self._ClockDivider(self, self.ref_divider)
 
-        self.prescaler = self._Prescaler(self, self.vco)
         self.rf_n_divider = self._RF_N_Divider(self)
-        self.phase_frequency_detector._set_feedback_source(self.rf_n_divider)
 
-        self.phaser = self._Phaser(self, self.rf_n_divider)
+        self.phaser = self._Phaser(self)
 
 
     @property
@@ -1657,16 +1548,14 @@ class ADF4351(Device):
         return self._bus.is_virtual_device
 
 
-    @property
-    def status(self):
-        return OrderedDict({name: getattr(self, name).status for name in
-                            ('mclk', 'ref_doubler', 'r_counter', 'ref_divider', 'phase_frequency_detector',
-                             'rf_n_divider', 'vco', 'rf_divider', 'rf_out', 'auxout')})
+    def reset(self):
+        self._action = 'reset'
+        self.init()
 
 
     @property
     def freq_pfd(self):
-        return self.phase_frequency_detector.freq_pfd
+        return self.ref_divider.freq
 
 
     def apply_signal(self, freq, phase = 0):
@@ -1695,7 +1584,7 @@ class ADF4351(Device):
 
 
     def set_dividers(self, d_ref_doubler = 2, d_r_counter = 1, d_ref_divider = 2,
-                     d_rf_n_divider = 176, d_rf_divider = 1):
+                     d_rf_n_divider = 120, d_rf_divider = 2):
 
         self.ref_doubler._set_divider(d_ref_doubler)
         self.r_counter._set_divider(d_r_counter)
@@ -1747,15 +1636,15 @@ class ADF4351(Device):
         import pandas as pd
 
         dfs = [pd.DataFrame([getattr(self, n).status]) for n in
-               ('mclk', 'ref_doubler', 'r_counter', 'ref_divider', 'phase_frequency_detector',
+               ('mclk', 'ref_doubler', 'r_counter', 'ref_divider',
                 'rf_n_divider', 'vco', 'rf_divider', 'rf_out', 'auxout')]
         df_dividers = pd.concat(dfs).reindex(columns = ['type', 'source_type', 'source_freq', 'my_divider',
                                                         'divider_equivalent', 'is_integer', 'my_freq'])
         df_dividers.index = range(len(df_dividers))
 
-        dfs = [pd.DataFrame([getattr(self, n).status]) for n in (
-            'phaser', 'prescaler', 'muxout', 'band_select_clock_divider', 'clock_divider', 'noise_control',
-            'charge_pump')]
+        dfs = [pd.DataFrame([getattr(self, n).status]) for n in \
+               ('phase_frequency_detector', 'band_select_clock_divider', 'muxout',
+                'phaser', 'clock_divider', 'noise_control', 'charge_pump')]
         df_controls = pd.concat(dfs)
         df_controls.index = range(len(df_controls))
 
