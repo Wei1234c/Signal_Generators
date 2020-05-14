@@ -21,15 +21,13 @@ def _is_integer(n):
 
 
 def _freq_trim(n):
-    return n  # for accuracy
-    # return math.floor(n)
-    # return round(n)
+    return n
 
 
 
 class ADF4351(Device):
     FREQ_MCLK = int(25e6)
-    INITIAL_REGISTERS_VALUES = (0x3C0000, 0x80087D1, 0x30041C2, 0xE404B3, 0x932224, 0X580005)
+    DEFAULT_REGISTERS_VALUES = (0x3C0000, 0x80087D1, 0x30041C2, 0xE404B3, 0x932224, 0X580005)
 
 
     class _DividerBase:
