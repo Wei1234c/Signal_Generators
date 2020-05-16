@@ -8,12 +8,13 @@ from utilities.adapters.peripherals import Bus
 
 
 
-class AnalogDeviceFX2LP(Bus):
+class AnalogDevicesFX2LP(Bus):
 
     def __init__(self, use_libusb0 = True):
 
         self.dev = usb.core.find(idVendor = 0X0456, idProduct = 0XB40D,
                                  backend = libusb0.get_backend() if use_libusb0 else libusb1.get_backend())
+
         if self.dev is not None:
             self.dev.set_configuration()
 
