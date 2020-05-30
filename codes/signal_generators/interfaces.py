@@ -70,6 +70,7 @@ class Device:
     def is_virtual_device(self):
         raise NotImplementedError()
 
+
     @property
     def status(self):
         raise NotImplementedError()
@@ -78,6 +79,7 @@ class Device:
     def load_registers(self, addressed_values):
         self._action = 'load_registers_values'
         self.map.load_values(addressed_values)
+
 
     @property
     def registers_values(self):
@@ -155,6 +157,10 @@ class Device:
         self._action = 'enable {}'.format(value)
         self._enabled = value
         self.enable_output(value)
+
+
+    def toggle(self):
+        self.enable(not self.enabled)
 
 
     def enable_output(self, value = True):
