@@ -67,7 +67,7 @@ class ControlRegister(Register):
 
     @property
     def bytes(self):
-        return array('B', self.value.to_bytes(self.n_bytes, 'little'))  # LSB first
+        return array('B', self.value.to_bytes(self.n_bytes, 'little'))  # byteorder: LSB first
 
 
     def print(self, as_hex = False):
