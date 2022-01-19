@@ -1,11 +1,7 @@
-import gc
-
 import ad9850
 import peripherals
 from shift_register import ShiftRegister
 
-
-gc.collect()
 
 _ss = peripherals.Pin.get_uPy_pin(15, output = True)
 _clk = peripherals.Pin.get_uPy_pin(14, output = True)
@@ -18,5 +14,3 @@ ad = ad9850.AD9850(bus = bus, pin_reset = _reset)
 ad.reset()
 
 ad.set_frequency(10.2e6)
-
-gc.collect()

@@ -12,22 +12,14 @@ SHAPE_DEFAULT = 'sine'
 
 
 
-class Device:
+class DeviceBase:
     DEBUG_MODE = False
     DEBUG_MODE_SHOW_BUS_DATA = DEBUG_MODE
     DEBUG_MODE_PRINT_REGISTER = DEBUG_MODE
 
-    FREQ_REF = None
-    N_OUTPUT_CLOCKS = None
 
+    def __init__(self, registers_map = None, registers_values = None, commands = None):
 
-    def __init__(self, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
-                 registers_map = None, registers_values = None,
-                 commands = None):
-        self._frequency = freq
-        self.freq_correction = freq_correction
-        self.phase = phase
-        self._shape = shape
         self._enabled = False
         self._action = ''
 
@@ -87,68 +79,6 @@ class Device:
 
 
     @property
-    def frequency(self):
-        return self._frequency + self.freq_correction
-
-
-    @frequency.setter
-    def frequency(self, frequency):
-        self._frequency = frequency
-
-
-    @property
-    def freq_resolution(self):
-        raise NotImplementedError()
-
-
-    @property
-    def phase_resolution(self):
-        raise NotImplementedError()
-
-
-    def apply_signal(self, freq = None, freq_correction = None, phase = None, shape = None):
-        raise NotImplementedError()
-
-
-    def set_frequency(self, freq, idx = None, freq_correction = None):
-        self._action = 'set_frequency {} idx {}'.format(freq, idx)
-        raise NotImplementedError()
-
-
-    def set_phase(self, phase, idx = None):
-        self._action = 'set_phase {} idx {}'.format(phase, idx)
-        raise NotImplementedError()
-
-
-    def select_freq_source(self, idx):
-        raise NotImplementedError()
-
-
-    def select_phase_source(self, idx):
-        raise NotImplementedError()
-
-
-    @property
-    def current_frequency(self):
-        raise NotImplementedError()
-
-
-    @property
-    def current_phase(self):
-        raise NotImplementedError()
-
-
-    @property
-    def shape(self):
-        return self._shape
-
-
-    @shape.setter
-    def shape(self, shape):
-        self._shape = shape
-
-
-    @property
     def enabled(self):
         return self._enabled
 
@@ -165,11 +95,6 @@ class Device:
 
     def enable_output(self, value = True):
         self._action = 'enable_output: {}'.format(value)
-        raise NotImplementedError()
-
-
-    def enable_output_channel(self, idx, value = True):
-        self._action = 'enable_output_channel: {} {}'.format(idx, value)
         raise NotImplementedError()
 
 
@@ -298,3 +223,88 @@ class Device:
         reg = self.map.elements[element_name]['register']
         self._read_n_load_register(reg)
         return reg.elements[element_name]
+
+
+
+class Device(DeviceBase):
+    FREQ_REF = None
+    N_OUTPUT_CLOCKS = None
+
+
+    def __init__(self, freq = FREQ_DEFAULT, freq_correction = 0, phase = PHASE_DEFAULT, shape = SHAPE_DEFAULT,
+                 registers_map = None, registers_values = None, commands = None):
+        self._frequency = freq
+        self.freq_correction = freq_correction
+        self.phase = phase
+        self._shape = shape
+
+        super().__init__(registers_map = registers_map,
+                         registers_values = registers_values,
+                         commands = commands)
+
+
+    @property
+    def frequency(self):
+        return self._frequency + self.freq_correction
+
+
+    @frequency.setter
+    def frequency(self, frequency):
+        self._frequency = frequency
+
+
+    @property
+    def freq_resolution(self):
+        raise NotImplementedError()
+
+
+    @property
+    def phase_resolution(self):
+        raise NotImplementedError()
+
+
+    def apply_signal(self, freq = None, freq_correction = None, phase = None, shape = None):
+        raise NotImplementedError()
+
+
+    def set_frequency(self, freq, idx = None, freq_correction = None):
+        self._action = 'set_frequency {} idx {}'.format(freq, idx)
+        raise NotImplementedError()
+
+
+    def set_phase(self, phase, idx = None):
+        self._action = 'set_phase {} idx {}'.format(phase, idx)
+        raise NotImplementedError()
+
+
+    def select_freq_source(self, idx):
+        raise NotImplementedError()
+
+
+    def select_phase_source(self, idx):
+        raise NotImplementedError()
+
+
+    @property
+    def current_frequency(self):
+        raise NotImplementedError()
+
+
+    @property
+    def current_phase(self):
+        raise NotImplementedError()
+
+
+    @property
+    def shape(self):
+        return self._shape
+
+
+    @shape.setter
+    def shape(self, shape):
+        self._shape = shape
+
+
+    def enable_output_channel(self, idx, value = True):
+        self._action = 'enable_output_channel: {} {}'.format(idx, value)
+        raise NotImplementedError()

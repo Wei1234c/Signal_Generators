@@ -354,30 +354,12 @@ class AD98xx(Device):
         self._update_control_register()
 
 
-    def start(self):
-        self._action = 'start'
-        self.enable(True)
-
-
-    def pause(self):
-        self._action = 'pause'
-        self.enable(False)
-
-
-    def resume(self):
-        self._action = 'resume'
-        self.enable(True)
-
 
     def stop(self):
         self._action = 'stop'
         self._enable_DAC(False)
         self.pause()
 
-
-    def close(self):
-        self._action = 'close'
-        self.stop()
 
 
     def _enable_internal_clock(self, value = True):
