@@ -35,7 +35,7 @@ class DeviceBase:
 
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
+        self.__del__()
 
 
     def __del__(self):
