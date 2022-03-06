@@ -39,7 +39,8 @@ class DeviceBase:
 
 
     def __del__(self):
-        self.close()
+        # self.close()
+        pass
 
 
     def do(self, commands):
