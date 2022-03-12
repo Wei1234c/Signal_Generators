@@ -39,7 +39,7 @@ class DeviceBase:
 
 
     def __del__(self):
-        # self.close()
+        # self.close()  # sometimes close before final read/write.
         pass
 
 
